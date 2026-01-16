@@ -14,6 +14,7 @@ export function Header({ onLinkAdded }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isDocsPage = pathname?.startsWith('/docs');
+  const isLinkPage = pathname?.startsWith('/link');
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b">
@@ -25,7 +26,7 @@ export function Header({ onLinkAdded }: HeaderProps) {
                 <BookOpen className="h-5 w-5" />
                 <h1 className="text-2xl font-bold tracking-tight">Docs</h1>
                 <Link
-                  href="/"
+                  href="/link"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   SaveLink
@@ -52,9 +53,9 @@ export function Header({ onLinkAdded }: HeaderProps) {
               <Plus className="h-4 w-4" />
               새 엔트리
             </Button>
-          ) : (
+          ) : isLinkPage ? (
             <LinkForm onSuccess={onLinkAdded} />
-          )}
+          ) : null}
         </div>
       </div>
     </header>
