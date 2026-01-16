@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useUpdateEntryMutation } from '@/domains/Docs/hooks/useDocsMutations';
 import { supabase } from '@/lib/supabase/client';
 import { MarkdownPreview } from '@/domains/Docs/components/MarkdownPreview';
+import { Header } from '@/components/shared/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Eye, Edit } from 'lucide-react';
+import { Eye, Edit } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { EntryFormData, KeywordEntry } from '@/domains/Docs/types';
 
@@ -108,21 +109,7 @@ export default function EditEntryPage({ params }: PageProps) {
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto max-w-[1240px] flex h-16 items-center justify-between px-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            돌아가기
-          </Button>
-          <h1 className="text-lg font-semibold">엔트리 수정</h1>
-          <div className="w-20" />
-        </div>
-      </header>
+        <Header />
 
       {/* Mobile Tabs */}
       <div className="md:hidden border-b">
