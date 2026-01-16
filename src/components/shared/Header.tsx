@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { LinkForm } from '@/domains/Link/components/LinkForm';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Plus } from 'lucide-react';
@@ -27,31 +26,19 @@ export function Header({ onLinkAdded }: HeaderProps) {
                 <BookOpen className="h-5 w-5" />
                 <h1 className="text-2xl font-bold tracking-tight">Docs</h1>
                 <Link
-                  href="/link"
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  href="/"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <Image
-                    src="/favicon.png"
-                    alt="기억 로고"
-                    width={20}
-                    height={20}
-                    className="rounded"
-                  />
                   기억
                 </Link>
               </>
             ) : (
               <>
-                <div className="flex items-center gap-2">
-                  <Image
-                    src="/favicon.png"
-                    alt="기억 로고"
-                    width={32}
-                    height={32}
-                    className="rounded"
-                  />
-                  <h1 className="text-2xl font-bold tracking-tight">기억</h1>
-                </div>
+                <Link href="/">
+                  <h1 className="text-2xl font-bold tracking-tight cursor-pointer hover:opacity-80 transition-opacity">
+                    기억
+                  </h1>
+                </Link>
                 <Link
                   href="/docs"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
