@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase/client';
 import { validateAccessKey } from '@/lib/auth';
+import { DEFAULT_USER_ID } from '@/constants/config';
 import type { LinkInsert, LinkUpdate } from '../types';
 import { getLinksQueryKey } from './useLinksQuery';
 
@@ -16,13 +17,11 @@ async function createLinkFn(
     throw new Error('잘못된 접근 키입니다');
   }
 
-  const fixedUserId = '00000000-0000-0000-0000-000000000000';
-
   const { data: link, error } = await supabase
     .from('links')
     .insert({
       ...data,
-      user_id: fixedUserId,
+      user_id: DEFAULT_USER_ID,
     })
     .select()
     .single();

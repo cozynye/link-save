@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
+import { DEFAULT_USER_ID } from '@/constants/config';
 import type { Link, LinkFilterOptions } from '../types';
 
 interface UseLinkDataReturn {
@@ -26,7 +27,7 @@ export function useLinkData(
       let query = supabase
         .from('links')
         .select('*')
-        .eq('user_id', '00000000-0000-0000-0000-000000000000');
+        .eq('user_id', 'DEFAULT_USER_ID');
 
       // 태그 필터링
       if (filterOptions?.tags && filterOptions.tags.length > 0) {
@@ -82,7 +83,7 @@ export function useLinkData(
           event: '*',
           schema: 'public',
           table: 'links',
-          filter: `user_id=eq.00000000-0000-0000-0000-000000000000`,
+          filter: `user_id=eq.DEFAULT_USER_ID`,
         },
         () => {
           // 데이터 변경 시 목록 다시 가져오기

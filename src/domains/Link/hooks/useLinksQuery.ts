@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase/client';
+import { DEFAULT_USER_ID } from '@/constants/config';
 import type { Link, LinkFilterOptions } from '../types';
 
 // 링크 조회 함수
@@ -9,7 +10,7 @@ async function fetchLinks(filterOptions?: LinkFilterOptions): Promise<Link[]> {
   let query = supabase
     .from('links')
     .select('*')
-    .eq('user_id', '00000000-0000-0000-0000-000000000000');
+    .eq('user_id', DEFAULT_USER_ID);
 
   // 태그 필터링
   if (filterOptions?.tags && filterOptions.tags.length > 0) {

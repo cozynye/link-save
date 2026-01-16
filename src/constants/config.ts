@@ -10,3 +10,8 @@ export const APP_CONFIG = {
   defaultSortBy: 'created_at' as const,
   defaultSortOrder: 'desc' as const,
 } as const;
+
+/**
+ * 기본 사용자 ID (단일 사용자 애플리케이션)
+ */
+export const DEFAULT_USER_ID = '00000000-0000-0000-0000-000000000000';

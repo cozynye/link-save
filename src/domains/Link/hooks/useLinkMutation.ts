@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { validateAccessKey } from '@/lib/auth';
+import { DEFAULT_USER_ID } from '@/constants/config';
 import type { LinkInsert, LinkUpdate } from '../types';
 
 export function useLinkMutation() {
@@ -23,14 +24,14 @@ export function useLinkMutation() {
       }
 
       // 현재 사용자 확인 (임시로 고정 user_id 사용)
-      const fixedUserId = '00000000-0000-0000-0000-000000000000';
+      const DEFAULT_USER_ID = '00000000-0000-0000-0000-000000000000';
 
       // 링크 생성
       const { data, error: insertError } = await supabase
         .from('links')
         .insert({
           ...linkData,
-          user_id: fixedUserId,
+          user_id: DEFAULT_USER_ID,
         })
         .select()
         .single();
