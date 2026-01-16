@@ -11,15 +11,14 @@ export default function HomePage() {
       <div className="max-w-4xl w-full">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center mb-4">
             <Image
               src="/logo.png"
               alt="기억 로고"
-              width={64}
-              height={64}
+              width={100}
+              height={100}
               className="rounded-lg"
             />
-            <h1 className="text-4xl font-bold tracking-tight">기억</h1>
           </div>
           <p className="text-muted-foreground text-lg">
             링크 관리와 지식 정리를 위한 통합 플랫폼

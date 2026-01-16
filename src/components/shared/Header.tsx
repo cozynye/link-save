@@ -31,7 +31,7 @@ export function Header({ onLinkAdded }: HeaderProps) {
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <Image
-                    src="/logo.png"
+                    src="/favicon.png"
                     alt="기억 로고"
                     width={20}
                     height={20}
@@ -44,7 +44,7 @@ export function Header({ onLinkAdded }: HeaderProps) {
               <>
                 <div className="flex items-center gap-2">
                   <Image
-                    src="/logo.png"
+                    src="/favicon.png"
                     alt="기억 로고"
                     width={32}
                     height={32}
