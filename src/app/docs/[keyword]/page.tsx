@@ -100,7 +100,7 @@ export default function KeywordDetailPage({ params }: PageProps) {
             {entries.map((entry) => (
               <Card key={entry.id} className="p-6">
                 {/* Entry Header */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between">
                   <div className="flex-1">
                     {entry.title && (
                       <h2 className="text-lg font-semibold mb-1">{entry.title}</h2>
