@@ -50,23 +50,27 @@ export default function KeywordDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/docs')}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            목록
-          </Button>
-          <h1 className="text-lg font-semibold line-clamp-1">
+        <div className="container mx-auto flex h-16 items-center px-4 relative">
+          <div className="flex-1 flex justify-start">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/docs')}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              목록
+            </Button>
+          </div>
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-semibold line-clamp-1 max-w-[40%]">
             {keyword?.name || '로딩 중...'}
           </h1>
-          <Button size="sm" onClick={handleAddEntry} className="gap-2">
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">추가</span>
-          </Button>
+          <div className="flex-1 flex justify-end">
+            <Button size="sm" onClick={handleAddEntry} className="gap-2">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">추가</span>
+            </Button>
+          </div>
         </div>
       </header>
 
