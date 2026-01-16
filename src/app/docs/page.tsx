@@ -35,24 +35,6 @@ export default function DocsPage() {
       {/* Sticky Header */}
       <Header />
 
-      {/* Sub Header */}
-      <div className="sticky top-[57px] z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            <h2 className="text-lg font-semibold">백과사전</h2>
-          </div>
-          <Button
-            size="sm"
-            className="gap-2"
-            onClick={() => router.push('/docs/new')}
-          >
-            <Plus className="h-4 w-4" />
-            새 엔트리
-          </Button>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         {/* Search Bar */}

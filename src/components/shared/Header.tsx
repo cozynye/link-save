@@ -1,8 +1,10 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LinkForm } from '@/domains/Link/components/LinkForm';
+import { Button } from '@/components/ui/button';
+import { BookOpen, Plus } from 'lucide-react';
 
 interface HeaderProps {
   onLinkAdded?: () => void;
@@ -10,6 +12,7 @@ interface HeaderProps {
 
 export function Header({ onLinkAdded }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const isDocsPage = pathname?.startsWith('/docs');
 
   return (
@@ -19,6 +22,7 @@ export function Header({ onLinkAdded }: HeaderProps) {
           <div className="flex items-center gap-3">
             {isDocsPage ? (
               <>
+                <BookOpen className="h-5 w-5" />
                 <h1 className="text-2xl font-bold tracking-tight">Docs</h1>
                 <Link
                   href="/"
@@ -39,7 +43,18 @@ export function Header({ onLinkAdded }: HeaderProps) {
               </>
             )}
           </div>
-          {!isDocsPage && <LinkForm onSuccess={onLinkAdded} />}
+          {isDocsPage ? (
+            <Button
+              size="sm"
+              className="gap-2"
+              onClick={() => router.push('/docs/new')}
+            >
+              <Plus className="h-4 w-4" />
+              새 엔트리
+            </Button>
+          ) : (
+            <LinkForm onSuccess={onLinkAdded} />
+          )}
         </div>
       </div>
     </header>
