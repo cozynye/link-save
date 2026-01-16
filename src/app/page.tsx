@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Link as LinkIcon, BookOpen, ArrowRight } from 'lucide-react';
 
@@ -10,9 +11,16 @@ export default function HomePage() {
       <div className="max-w-4xl w-full">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">
-            Welcome to SaveLink
-          </h1>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Image
+              src="/logo.png"
+              alt="기억 로고"
+              width={64}
+              height={64}
+              className="rounded-lg"
+            />
+            <h1 className="text-4xl font-bold tracking-tight">기억</h1>
+          </div>
           <p className="text-muted-foreground text-lg">
             링크 관리와 지식 정리를 위한 통합 플랫폼
           </p>
