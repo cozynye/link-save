@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { login } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { LogIn } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnUrl = searchParams?.get('returnUrl') || '/';
@@ -128,5 +128,17 @@ export default function LoginPage() {
         </div>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">로딩 중...</p>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
