@@ -197,7 +197,7 @@ export function LinkFilter({ onFilterChange }: LinkFilterProps) {
       <div className="space-y-3">
         <h3 className="text-sm font-medium">정렬</h3>
         <div className="flex gap-2">
-          <Select value={tempSortBy} onValueChange={setTempSortBy}>
+          <Select value={tempSortBy} onValueChange={(value) => setTempSortBy(value as typeof tempSortBy)}>
             <SelectTrigger className="flex-1">
               <SelectValue />
             </SelectTrigger>
@@ -208,7 +208,7 @@ export function LinkFilter({ onFilterChange }: LinkFilterProps) {
             </SelectContent>
           </Select>
 
-          <Select value={tempSortOrder} onValueChange={setTempSortOrder}>
+          <Select value={tempSortOrder} onValueChange={(value) => setTempSortOrder(value as typeof tempSortOrder)}>
             <SelectTrigger className="flex-1">
               <SelectValue />
             </SelectTrigger>

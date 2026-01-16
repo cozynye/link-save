@@ -40,19 +40,21 @@ export default function EditEntryPage({ params }: PageProps) {
         .from('keyword_entries')
         .select('*')
         .eq('id', entryId)
-        .single();
+        .single<KeywordEntry>();
 
       if (error) {
         console.error('Failed to load entry:', error);
         return;
       }
 
-      setEntry(data);
-      setFormData({
-        title: data.title || '',
-        content: data.content,
-      });
-      setIsLoading(false);
+      if (data) {
+        setEntry(data);
+        setFormData({
+          title: data.title || '',
+          content: data.content,
+        });
+        setIsLoading(false);
+      }
     }
 
     loadEntry();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCreateEntryMutation } from '@/domains/Docs/hooks/useDocsMutations';
 import { useKeywordsQuery } from '@/domains/Docs/hooks/useKeywordsQuery';
@@ -12,7 +12,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Eye, Edit } from 'lucide-react';
 import type { EntryFormData } from '@/domains/Docs/types';
 
-export default function NewEntryPage() {
+// Prevent static generation due to useSearchParams
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
+function NewEntryForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const keywordId = searchParams?.get('keyword');
@@ -271,5 +275,17 @@ export default function NewEntryPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function NewEntryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">로딩 중...</p>
+      </div>
+    }>
+      <NewEntryForm />
+    </Suspense>
   );
 }
