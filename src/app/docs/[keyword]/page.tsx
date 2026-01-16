@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ClientDate } from '@/components/ui/client-date';
-import { Calendar, Edit, Trash2 } from 'lucide-react';
+import { Calendar, Edit, Trash2, Plus } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { KeywordEntry } from '@/domains/Docs/types';
 
