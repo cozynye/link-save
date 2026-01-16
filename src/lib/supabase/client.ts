@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from './types';
 
 const supabaseUrl =
@@ -17,4 +17,8 @@ if (
   );
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// SSR-compatible browser client (shares cookies with middleware)
+export const supabase = createBrowserClient<Database>(
+  supabaseUrl,
+  supabaseAnonKey
+);
