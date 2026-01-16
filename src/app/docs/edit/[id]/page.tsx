@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Eye, Edit } from 'lucide-react';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { EntryFormData, KeywordEntry } from '@/domains/Docs/types';
 
 interface PageProps {
@@ -28,8 +29,7 @@ export default function EditEntryPage({ params }: PageProps) {
     title: '',
     content: '',
   });
-  const [accessKey, setAccessKey] = useState('');
-  const [formErrors, setFormErrors] = useState<Partial<EntryFormData & { accessKey?: string }>>({});
+  const [formErrors, setFormErrors] = useState<Partial<EntryFormData>>({});
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -61,14 +61,10 @@ export default function EditEntryPage({ params }: PageProps) {
   }, [entryId]);
 
   const validateForm = (): boolean => {
-    const errors: Partial<EntryFormData & { accessKey?: string }> = {};
+    const errors: Partial<EntryFormData> = {};
 
     if (!formData.content?.trim()) {
       errors.content = '내용을 입력해주세요';
-    }
-
-    if (!accessKey.trim()) {
-      errors.accessKey = '접근 키를 입력해주세요';
     }
 
     setFormErrors(errors);
@@ -89,7 +85,6 @@ export default function EditEntryPage({ params }: PageProps) {
           title: formData.title?.trim() || undefined,
           content: formData.content!.trim(),
         },
-        accessKey: accessKey.trim(),
       },
       {
         onSuccess: () => {
@@ -110,10 +105,11 @@ export default function EditEntryPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto max-w-[1240px] flex h-16 items-center justify-between px-4">
           <Button
             variant="ghost"
             size="sm"
@@ -130,7 +126,7 @@ export default function EditEntryPage({ params }: PageProps) {
 
       {/* Mobile Tabs */}
       <div className="md:hidden border-b">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto max-w-[1240px] px-4">
           <div className="flex gap-2">
             <button
               className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${
@@ -159,7 +155,7 @@ export default function EditEntryPage({ params }: PageProps) {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto max-w-[1240px] px-4 py-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Form Inputs */}
           <div className="space-y-4">
@@ -177,23 +173,6 @@ export default function EditEntryPage({ params }: PageProps) {
               />
             </div>
 
-            {/* Access Key */}
-            <div className="space-y-2">
-              <Label htmlFor="accessKey">
-                접근 키 <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="accessKey"
-                type="password"
-                placeholder="접근 키를 입력하세요"
-                value={accessKey}
-                onChange={(e) => setAccessKey(e.target.value)}
-                className={formErrors.accessKey ? 'border-destructive' : ''}
-              />
-              {formErrors.accessKey && (
-                <p className="text-sm text-destructive">{formErrors.accessKey}</p>
-              )}
-            </div>
           </div>
 
           {/* Split View / Tabs */}
@@ -259,5 +238,6 @@ export default function EditEntryPage({ params }: PageProps) {
         </form>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

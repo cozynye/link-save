@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ClientDate } from '@/components/ui/client-date';
 import { ArrowLeft, Plus, Calendar, Edit, Trash2 } from 'lucide-react';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { KeywordEntry } from '@/domains/Docs/types';
 
 interface PageProps {
@@ -47,10 +48,11 @@ export default function KeywordDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center px-4 relative">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto max-w-[1240px] flex h-16 items-center px-4 relative">
           <div className="flex-1 flex justify-start">
             <Button
               variant="ghost"
@@ -75,7 +77,7 @@ export default function KeywordDetailPage({ params }: PageProps) {
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-[1240px]">
         {/* Keyword Info */}
         {keyword && (
           <div className="mb-8 space-y-2">
@@ -163,5 +165,6 @@ export default function KeywordDetailPage({ params }: PageProps) {
         onSuccess={handleDeleteSuccess}
       />
     </div>
+    </ProtectedRoute>
   );
 }

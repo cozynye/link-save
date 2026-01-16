@@ -7,6 +7,7 @@ import { LinkList } from '@/domains/Link/components/LinkList';
 import { LinkFilter } from '@/domains/Link/components/LinkFilter';
 import { LinkDeleteDialog } from '@/domains/Link/components/LinkDeleteDialog';
 import { useTogglePinMutation } from '@/domains/Link/hooks/useLinkMutations';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { Link, LinkFilterOptions } from '@/domains/Link/types';
 
 export default function Home() {
@@ -41,54 +42,52 @@ export default function Home() {
   };
 
   const handleTogglePin = (link: Link) => {
-    const accessKey = prompt('접근 키를 입력하세요:');
-    if (!accessKey) return;
-
     togglePinMutation.mutate({
       id: link.id,
       isPinned: !link.is_pinned,
-      accessKey,
     });
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Sticky Header */}
-      <Header onLinkAdded={handleLinkAdded} />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        {/* Sticky Header */}
+        <Header onLinkAdded={handleLinkAdded} />
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        {/* 필터 */}
-        <div className="mb-8">
-          <LinkFilter onFilterChange={setFilterOptions} />
+        {/* Main Content */}
+        <div className="container mx-auto max-w-[1240px] px-4 py-8">
+          {/* 필터 */}
+          <div className="mb-4">
+            <LinkFilter onFilterChange={setFilterOptions} />
+          </div>
+
+          {/* 링크 목록 */}
+          <div>
+            <LinkList
+              filterOptions={filterOptions}
+              onEditLink={handleEditLink}
+              onDeleteLink={handleDeleteLink}
+              onTogglePin={handleTogglePin}
+            />
+          </div>
         </div>
 
-        {/* 링크 목록 */}
-        <div>
-          <LinkList
-            filterOptions={filterOptions}
-            onEditLink={handleEditLink}
-            onDeleteLink={handleDeleteLink}
-            onTogglePin={handleTogglePin}
-          />
-        </div>
+        {/* 링크 수정 폼 */}
+        <LinkForm
+          editLink={editingLink}
+          open={isEditFormOpen}
+          onOpenChange={setIsEditFormOpen}
+          onSuccess={handleEditSuccess}
+        />
+
+        {/* 링크 삭제 다이얼로그 */}
+        <LinkDeleteDialog
+          link={deletingLink}
+          open={!!deletingLink}
+          onOpenChange={(open) => !open && setDeletingLink(null)}
+          onSuccess={handleDeleteSuccess}
+        />
       </div>
-
-      {/* 링크 수정 폼 */}
-      <LinkForm
-        editLink={editingLink}
-        open={isEditFormOpen}
-        onOpenChange={setIsEditFormOpen}
-        onSuccess={handleEditSuccess}
-      />
-
-      {/* 링크 삭제 다이얼로그 */}
-      <LinkDeleteDialog
-        link={deletingLink}
-        open={!!deletingLink}
-        onOpenChange={(open) => !open && setDeletingLink(null)}
-        onSuccess={handleDeleteSuccess}
-      />
-    </div>
+    </ProtectedRoute>
   );
 }

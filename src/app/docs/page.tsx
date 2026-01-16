@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ClientDate } from '@/components/ui/client-date';
 import { Plus, Search, BookOpen, Calendar } from 'lucide-react';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { DocsFilterOptions } from '@/domains/Docs/types';
 
 export default function DocsPage() {
@@ -32,12 +33,13 @@ export default function DocsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Sticky Header */}
-      <Header />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        {/* Sticky Header */}
+        <Header />
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+        {/* Main Content */}
+        <div className="container mx-auto max-w-[1240px] px-4 py-8">
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="mb-8">
           <div className="relative">
@@ -119,5 +121,6 @@ export default function DocsPage() {
         )}
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

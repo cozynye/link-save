@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Eye, Edit } from 'lucide-react';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { EntryFormData } from '@/domains/Docs/types';
 
 // Prevent static generation due to useSearchParams
@@ -45,8 +46,8 @@ function NewEntryForm() {
       }
     }
   }, [keywordId, keywords]);
-  const [accessKey, setAccessKey] = useState('');
-  const [formErrors, setFormErrors] = useState<Partial<EntryFormData & { accessKey?: string }>>({});
+
+  const [formErrors, setFormErrors] = useState<Partial<EntryFormData>>({});
 
   // 모바일 탭 상태
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
@@ -55,7 +56,7 @@ function NewEntryForm() {
   const error = createEntryMutation.error;
 
   const validateForm = (): boolean => {
-    const errors: Partial<EntryFormData & { accessKey?: string }> = {};
+    const errors: Partial<EntryFormData> = {};
 
     if (!formData.keywordName?.trim()) {
       errors.keywordName = '키워드를 입력해주세요';
@@ -63,10 +64,6 @@ function NewEntryForm() {
 
     if (!formData.content?.trim()) {
       errors.content = '내용을 입력해주세요';
-    }
-
-    if (!accessKey.trim()) {
-      errors.accessKey = '접근 키를 입력해주세요';
     }
 
     setFormErrors(errors);
@@ -82,14 +79,11 @@ function NewEntryForm() {
 
     createEntryMutation.mutate(
       {
-        data: {
-          keywordId: formData.keywordId,
-          keywordName: formData.keywordName?.trim(),
-          title: formData.title?.trim() || undefined,
-          content: formData.content.trim(),
-          tags: formData.tags,
-        },
-        accessKey: accessKey.trim(),
+        keywordId: formData.keywordId,
+        keywordName: formData.keywordName?.trim(),
+        title: formData.title?.trim() || undefined,
+        content: formData.content.trim(),
+        tags: formData.tags,
       },
       {
         onSuccess: (entry) => {
@@ -101,10 +95,11 @@ function NewEntryForm() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto max-w-[1240px] flex h-16 items-center justify-between px-4">
           <Button
             variant="ghost"
             size="sm"
@@ -120,7 +115,7 @@ function NewEntryForm() {
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto max-w-[1240px] px-4 py-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Form Inputs */}
           <div className="space-y-4">
@@ -162,24 +157,6 @@ function NewEntryForm() {
               <p className="text-xs text-muted-foreground">
                 여러 엔트리를 구분하기 위한 제목입니다
               </p>
-            </div>
-
-            {/* Access Key */}
-            <div className="space-y-2">
-              <Label htmlFor="accessKey">
-                접근 키 <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="accessKey"
-                type="password"
-                placeholder="접근 키를 입력하세요"
-                value={accessKey}
-                onChange={(e) => setAccessKey(e.target.value)}
-                className={formErrors.accessKey ? 'border-destructive' : ''}
-              />
-              {formErrors.accessKey && (
-                <p className="text-sm text-destructive">{formErrors.accessKey}</p>
-              )}
             </div>
           </div>
 
@@ -275,6 +252,7 @@ function NewEntryForm() {
         </form>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
 

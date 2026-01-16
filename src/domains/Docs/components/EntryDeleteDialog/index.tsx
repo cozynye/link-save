@@ -12,8 +12,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import type { KeywordEntry } from '../../types';
 
 interface EntryDeleteDialogProps {
@@ -29,40 +27,26 @@ export function EntryDeleteDialog({
   onOpenChange,
   onSuccess,
 }: EntryDeleteDialogProps) {
-  const [accessKey, setAccessKey] = useState('');
   const [error, setError] = useState('');
   const deleteEntryMutation = useDeleteEntryMutation();
 
   const handleDelete = async () => {
     if (!entry) return;
 
-    if (!accessKey.trim()) {
-      setError('접근 키를 입력해주세요');
-      return;
-    }
-
-    deleteEntryMutation.mutate(
-      {
-        id: entry.id,
-        accessKey: accessKey.trim(),
+    deleteEntryMutation.mutate(entry.id, {
+      onSuccess: () => {
+        setError('');
+        onOpenChange(false);
+        onSuccess?.();
       },
-      {
-        onSuccess: () => {
-          setAccessKey('');
-          setError('');
-          onOpenChange(false);
-          onSuccess?.();
-        },
-        onError: (error) => {
-          setError(error instanceof Error ? error.message : '삭제에 실패했습니다');
-        },
-      }
-    );
+      onError: (error) => {
+        setError(error instanceof Error ? error.message : '삭제에 실패했습니다');
+      },
+    });
   };
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setAccessKey('');
       setError('');
     }
     onOpenChange(open);
@@ -79,27 +63,11 @@ export function EntryDeleteDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="delete-access-key">
-              접근 키 <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="delete-access-key"
-              type="password"
-              placeholder="접근 키를 입력하세요"
-              value={accessKey}
-              onChange={(e) => setAccessKey(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleDelete();
-                }
-              }}
-            />
-            {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
+            {error}
           </div>
-        </div>
+        )}
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={deleteEntryMutation.isPending}>

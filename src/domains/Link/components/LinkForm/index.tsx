@@ -43,10 +43,7 @@ export function LinkForm({
     description: "",
     tags: [],
   });
-  const [accessKey, setAccessKey] = useState("");
-  const [formErrors, setFormErrors] = useState<
-    Partial<LinkFormData & { accessKey?: string }>
-  >({});
+  const [formErrors, setFormErrors] = useState<Partial<LinkFormData>>({});
 
   const createLinkMutation = useCreateLinkMutation();
   const updateLinkMutation = useUpdateLinkMutation();
@@ -68,7 +65,7 @@ export function LinkForm({
   }, [editLink, open]);
 
   const validateForm = (): boolean => {
-    const errors: Partial<LinkFormData & { accessKey?: string }> = {};
+    const errors: Partial<LinkFormData> = {};
 
     // URL 필수 검증
     if (!formData.url.trim()) {
@@ -85,11 +82,6 @@ export function LinkForm({
     // 제목 필수 검증
     if (!formData.title.trim()) {
       errors.title = "제목을 입력해주세요";
-    }
-
-    // 접근 키 검증
-    if (!accessKey.trim()) {
-      errors.accessKey = "접근 키를 입력해주세요";
     }
 
     setFormErrors(errors);
@@ -114,7 +106,6 @@ export function LinkForm({
             description: formData.description?.trim() || null,
             tags: formData.tags,
           },
-          accessKey: accessKey.trim(),
         },
         {
           onSuccess: () => {
@@ -125,7 +116,6 @@ export function LinkForm({
               description: "",
               tags: [],
             });
-            setAccessKey("");
             setFormErrors({});
             setOpen(false);
             onSuccess?.();
@@ -136,13 +126,10 @@ export function LinkForm({
       // 생성 모드
       createLinkMutation.mutate(
         {
-          data: {
-            url: formData.url.trim(),
-            title: formData.title.trim(),
-            description: formData.description?.trim() || null,
-            tags: formData.tags,
-          },
-          accessKey: accessKey.trim(),
+          url: formData.url.trim(),
+          title: formData.title.trim(),
+          description: formData.description?.trim() || null,
+          tags: formData.tags,
         },
         {
           onSuccess: () => {
@@ -153,7 +140,6 @@ export function LinkForm({
               description: "",
               tags: [],
             });
-            setAccessKey("");
             setFormErrors({});
             setOpen(false);
             onSuccess?.();
@@ -173,7 +159,6 @@ export function LinkForm({
         description: "",
         tags: [],
       });
-      setAccessKey("");
       setFormErrors({});
     }
   };
@@ -182,8 +167,8 @@ export function LinkForm({
     <ResponsiveModal open={open} onOpenChange={handleOpenChange}>
       {!isEditMode && (
         <ResponsiveModalTrigger asChild>
-          <Button size="lg" className="gap-2">
-            <Plus className="h-5 w-5" />
+          <Button size="sm" className="gap-2">
+            <Plus className="h-4 w-4" />
             링크 추가
           </Button>
         </ResponsiveModalTrigger>
@@ -261,28 +246,6 @@ export function LinkForm({
               selectedTags={formData.tags}
               onTagsChange={(tags) => setFormData({ ...formData, tags })}
             />
-          </div>
-
-          {/* 접근 키 입력 */}
-          <div className="space-y-2">
-            <Label htmlFor="accessKey">
-              접근 키 <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="accessKey"
-              name="accessKey"
-              type="password"
-              placeholder="접근 키를 입력하세요"
-              value={accessKey}
-              onChange={(e) => setAccessKey(e.target.value)}
-              className={formErrors.accessKey ? "border-destructive" : ""}
-            />
-            {formErrors.accessKey && (
-              <p className="text-sm text-destructive">{formErrors.accessKey}</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              데이터 보호를 위해 접근 키가 필요합니다
-            </p>
           </div>
 
           {/* 에러 메시지 */}

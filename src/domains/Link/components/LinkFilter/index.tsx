@@ -120,33 +120,6 @@ export function LinkFilter({ onFilterChange }: LinkFilterProps) {
   // 데스크톱 필터 옵션 렌더링 함수
   const renderFilterOptions = () => (
     <>
-      {/* 정렬 옵션 */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium">정렬</h3>
-        <div className="flex gap-2">
-          <Select value={sortBy} onValueChange={handleSortByChange}>
-            <SelectTrigger className="flex-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="updated_at">수정일</SelectItem>
-              <SelectItem value="created_at">생성일</SelectItem>
-              <SelectItem value="title">제목</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={sortOrder} onValueChange={handleSortOrderChange}>
-            <SelectTrigger className="flex-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="desc">내림차순</SelectItem>
-              <SelectItem value="asc">오름차순</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       {/* 태그 필터 */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -187,39 +160,36 @@ export function LinkFilter({ onFilterChange }: LinkFilterProps) {
           })}
         </div>
       </div>
+
+      {/* 정렬 옵션 */}
+      <div className="flex justify-end gap-2">
+        <Select value={sortBy} onValueChange={handleSortByChange}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="updated_at">수정일</SelectItem>
+            <SelectItem value="created_at">생성일</SelectItem>
+            <SelectItem value="title">제목</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={sortOrder} onValueChange={handleSortOrderChange}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="desc">내림차순</SelectItem>
+            <SelectItem value="asc">오름차순</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </>
   );
 
   // 모바일 시트 필터 옵션 렌더링 함수
   const renderMobileFilterOptions = () => (
     <>
-      {/* 정렬 옵션 */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium">정렬</h3>
-        <div className="flex gap-2">
-          <Select value={tempSortBy} onValueChange={(value) => setTempSortBy(value as typeof tempSortBy)}>
-            <SelectTrigger className="flex-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="updated_at">수정일</SelectItem>
-              <SelectItem value="created_at">생성일</SelectItem>
-              <SelectItem value="title">제목</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={tempSortOrder} onValueChange={(value) => setTempSortOrder(value as typeof tempSortOrder)}>
-            <SelectTrigger className="flex-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="desc">내림차순</SelectItem>
-              <SelectItem value="asc">오름차순</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       {/* 태그 필터 */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -265,6 +235,30 @@ export function LinkFilter({ onFilterChange }: LinkFilterProps) {
             );
           })}
         </div>
+      </div>
+
+      {/* 정렬 옵션 */}
+      <div className="flex justify-end gap-2">
+        <Select value={tempSortBy} onValueChange={(value) => setTempSortBy(value as typeof tempSortBy)}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="updated_at">수정일</SelectItem>
+            <SelectItem value="created_at">생성일</SelectItem>
+            <SelectItem value="title">제목</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={tempSortOrder} onValueChange={(value) => setTempSortOrder(value as typeof tempSortOrder)}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="desc">내림차순</SelectItem>
+            <SelectItem value="asc">오름차순</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </>
   );

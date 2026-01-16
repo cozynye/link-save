@@ -11,8 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useDeleteLinkMutation } from '../../hooks/useLinkMutations';
 import type { Link } from '../../types';
 
@@ -29,8 +27,6 @@ export function LinkDeleteDialog({
   onOpenChange,
   onSuccess,
 }: LinkDeleteDialogProps) {
-  const [accessKey, setAccessKey] = useState('');
-  const [accessKeyError, setAccessKeyError] = useState('');
   const deleteLinkMutation = useDeleteLinkMutation();
 
   const isLoading = deleteLinkMutation.isPending;
@@ -39,33 +35,13 @@ export function LinkDeleteDialog({
   const handleDelete = () => {
     if (!link) return;
 
-    // 접근 키 검증
-    if (!accessKey.trim()) {
-      setAccessKeyError('접근 키를 입력해주세요');
-      return;
-    }
-
-    deleteLinkMutation.mutate(
-      {
-        id: link.id,
-        accessKey: accessKey.trim(),
+    deleteLinkMutation.mutate(link.id, {
+      onSuccess: () => {
+        // 성공 시 다이얼로그 닫기
+        onOpenChange(false);
+        onSuccess?.();
       },
-      {
-        onSuccess: () => {
-          // 성공 시 다이얼로그 닫고 초기화
-          setAccessKey('');
-          setAccessKeyError('');
-          onOpenChange(false);
-          onSuccess?.();
-        },
-      }
-    );
-  };
-
-  const handleCancel = () => {
-    setAccessKey('');
-    setAccessKeyError('');
-    onOpenChange(false);
+    });
   };
 
   return (
@@ -87,31 +63,6 @@ export function LinkDeleteDialog({
           </div>
         )}
 
-        {/* 접근 키 입력 */}
-        <div className="space-y-2">
-          <Label htmlFor="delete-accessKey">
-            접근 키 <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="delete-accessKey"
-            type="password"
-            placeholder="접근 키를 입력하세요"
-            value={accessKey}
-            onChange={(e) => {
-              setAccessKey(e.target.value);
-              setAccessKeyError('');
-            }}
-            className={accessKeyError ? 'border-destructive' : ''}
-            disabled={isLoading}
-          />
-          {accessKeyError && (
-            <p className="text-sm text-destructive">{accessKeyError}</p>
-          )}
-          <p className="text-xs text-muted-foreground">
-            삭제를 위해 접근 키가 필요합니다
-          </p>
-        </div>
-
         {/* 에러 메시지 */}
         {error && (
           <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
@@ -120,9 +71,7 @@ export function LinkDeleteDialog({
         )}
 
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel} disabled={isLoading}>
-            취소
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>취소</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading}
