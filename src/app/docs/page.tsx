@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { ClientDate } from '@/components/ui/client-date';
 import { Plus, Search, BookOpen, Calendar } from 'lucide-react';
 import type { DocsFilterOptions } from '@/domains/Docs/types';
 
@@ -92,7 +93,7 @@ export default function DocsPage() {
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {new Date(keyword.updated_at).toLocaleDateString('ko-KR')}
+                      <ClientDate date={keyword.updated_at} format="date" />
                     </div>
                     <div>
                       {keyword.entry_count || 0}개 엔트리

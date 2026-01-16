@@ -9,6 +9,7 @@ import { EntryDeleteDialog } from '@/domains/Docs/components/EntryDeleteDialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { ClientDate } from '@/components/ui/client-date';
 import { ArrowLeft, Plus, Calendar, Edit, Trash2 } from 'lucide-react';
 import type { KeywordEntry } from '@/domains/Docs/types';
 
@@ -106,9 +107,7 @@ export default function KeywordDetailPage({ params }: PageProps) {
                     )}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-3 w-3" />
-                      <span>
-                        {new Date(entry.created_at).toLocaleString('ko-KR')}
-                      </span>
+                      <ClientDate date={entry.created_at} />
                       {entry.updated_at !== entry.created_at && (
                         <span className="text-xs">(수정됨)</span>
                       )}
