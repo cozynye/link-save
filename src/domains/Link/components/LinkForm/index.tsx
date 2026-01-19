@@ -16,7 +16,7 @@ import {
   useCreateLinkMutation,
   useUpdateLinkMutation,
 } from "../../hooks/useLinkMutations";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import type { LinkFormData, Link } from "../../types";
 
 interface LinkFormProps {
@@ -44,6 +44,7 @@ export function LinkForm({
     tags: [],
   });
   const [formErrors, setFormErrors] = useState<Partial<LinkFormData>>({});
+  const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
 
   const createLinkMutation = useCreateLinkMutation();
   const updateLinkMutation = useUpdateLinkMutation();
@@ -64,6 +65,50 @@ export function LinkForm({
     }
   }, [editLink, open]);
 
+  const fetchMetadata = async () => {
+    if (!formData.url.trim()) {
+      return;
+    }
+
+    // URL 형식 검증
+    try {
+      new URL(formData.url);
+    } catch {
+      setFormErrors({ url: "올바른 URL 형식이 아닙니다" });
+      return;
+    }
+
+    setIsFetchingMetadata(true);
+    setFormErrors({});
+
+    try {
+      const response = await fetch('/api/metadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: formData.url }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch metadata');
+      }
+
+      const metadata = await response.json();
+
+      // 제목과 설명이 비어있을 때만 자동으로 채우기
+      setFormData((prev) => ({
+        ...prev,
+        title: prev.title || metadata.title || '',
+        description: prev.description || metadata.description || '',
+      }));
+    } catch (error) {
+      console.error('Error fetching metadata:', error);
+    } finally {
+      setIsFetchingMetadata(false);
+    }
+  };
+
   const validateForm = (): boolean => {
     const errors: Partial<LinkFormData> = {};
 
@@ -79,11 +124,6 @@ export function LinkForm({
       }
     }
 
-    // 제목 필수 검증
-    if (!formData.title.trim()) {
-      errors.title = "제목을 입력해주세요";
-    }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -95,6 +135,9 @@ export function LinkForm({
       return;
     }
 
+    // 제목이 없으면 URL을 제목으로 사용
+    const finalTitle = formData.title.trim() || formData.url.trim();
+
     if (isEditMode && editLink) {
       // 수정 모드
       updateLinkMutation.mutate(
@@ -102,7 +145,7 @@ export function LinkForm({
           id: editLink.id,
           data: {
             url: formData.url.trim(),
-            title: formData.title.trim(),
+            title: finalTitle,
             description: formData.description?.trim() || null,
             tags: formData.tags,
           },
@@ -127,7 +170,7 @@ export function LinkForm({
       createLinkMutation.mutate(
         {
           url: formData.url.trim(),
-          title: formData.title.trim(),
+          title: finalTitle,
           description: formData.description?.trim() || null,
           tags: formData.tags,
         },
@@ -187,17 +230,30 @@ export function LinkForm({
             <Label htmlFor="url">
               URL <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="url"
-              name="url"
-              type="text"
-              placeholder="https://example.com"
-              value={formData.url}
-              onChange={(e) =>
-                setFormData({ ...formData, url: e.target.value })
-              }
-              className={formErrors.url ? "border-destructive" : ""}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="url"
+                name="url"
+                type="text"
+                placeholder="https://example.com"
+                value={formData.url}
+                onChange={(e) =>
+                  setFormData({ ...formData, url: e.target.value })
+                }
+                className={formErrors.url ? "border-destructive" : ""}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={fetchMetadata}
+                disabled={isFetchingMetadata || !formData.url.trim()}
+                className="gap-2 whitespace-nowrap"
+              >
+                <Sparkles className="h-4 w-4" />
+                {isFetchingMetadata ? '가져오는 중...' : '자동 입력'}
+              </Button>
+            </div>
             {formErrors.url && (
               <p className="text-sm text-destructive">{formErrors.url}</p>
             )}
@@ -205,9 +261,7 @@ export function LinkForm({
 
           {/* 제목 입력 */}
           <div className="space-y-2">
-            <Label htmlFor="title">
-              제목 <span className="text-destructive">*</span>
-            </Label>
+            <Label htmlFor="title">제목 (선택)</Label>
             <Input
               id="title"
               name="title"
@@ -217,11 +271,10 @@ export function LinkForm({
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
-              className={formErrors.title ? "border-destructive" : ""}
             />
-            {formErrors.title && (
-              <p className="text-sm text-destructive">{formErrors.title}</p>
-            )}
+            <p className="text-xs text-muted-foreground">
+              비어있으면 URL을 제목으로 사용합니다
+            </p>
           </div>
 
           {/* 설명 입력 */}

@@ -10,8 +10,7 @@ import { Header } from '@/components/shared/Header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ClientDate } from '@/components/ui/client-date';
-import { Calendar, Edit, Trash2, Plus } from 'lucide-react';
+import { Edit, Trash2, Plus } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { KeywordEntry } from '@/domains/Docs/types';
 
@@ -82,22 +81,15 @@ export default function KeywordDetailPage({ params }: PageProps) {
         ) : entries && entries.length > 0 ? (
           <div className="space-y-4">
             {entries.map((entry) => (
-              <Card key={entry.id} className="p-6">
-                {/* Entry Header */}
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
+              <Card key={entry.id} className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
                     {entry.title && (
-                      <h2 className="text-lg font-semibold mb-1">{entry.title}</h2>
+                      <h2 className="text-lg font-semibold mb-3">{entry.title}</h2>
                     )}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      <ClientDate date={entry.created_at} />
-                      {entry.updated_at !== entry.created_at && (
-                        <span className="text-xs">(수정됨)</span>
-                      )}
-                    </div>
+                    <MarkdownPreview content={entry.content} />
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-shrink-0">
                     <Button
                       size="sm"
                       variant="ghost"
@@ -113,11 +105,6 @@ export default function KeywordDetailPage({ params }: PageProps) {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                </div>
-
-                {/* Entry Content */}
-                <div className="border-t pt-4">
-                  <MarkdownPreview content={entry.content} />
                 </div>
               </Card>
             ))}
