@@ -64,7 +64,7 @@ export default function DocsPage() {
             {keywords.map((keyword) => (
               <Card
                 key={keyword.id}
-                className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                className="p-4 hover:shadow-lg transition-shadow cursor-pointer relative"
                 onClick={() => handleKeywordClick(keyword.id)}
               >
                 <div className="space-y-3">

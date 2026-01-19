@@ -2,15 +2,22 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase/client';
-import { DEFAULT_USER_ID } from '@/constants/config';
+import { getCurrentUserId } from '@/lib/auth';
 import type { Link, LinkFilterOptions } from '../types';
 
 // 링크 조회 함수
 async function fetchLinks(filterOptions?: LinkFilterOptions): Promise<Link[]> {
+  // 현재 로그인한 사용자 ID 가져오기
+  const userId = await getCurrentUserId();
+
+  if (!userId) {
+    throw new Error('로그인이 필요합니다');
+  }
+
   let query = supabase
     .from('links')
     .select('*')
-    .eq('user_id', DEFAULT_USER_ID);
+    .eq('user_id', userId);
 
   // 태그 필터링
   if (filterOptions?.tags && filterOptions.tags.length > 0) {

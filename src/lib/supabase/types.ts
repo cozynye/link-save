@@ -19,6 +19,7 @@ export interface Database {
           thumbnail_url: string | null;
           tags: string[];
           is_pinned: boolean;
+          row_number: number;
           created_at: string;
           updated_at: string;
         };
@@ -31,6 +32,7 @@ export interface Database {
           thumbnail_url?: string | null;
           tags?: string[];
           is_pinned?: boolean;
+          row_number?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -43,6 +45,7 @@ export interface Database {
           thumbnail_url?: string | null;
           tags?: string[];
           is_pinned?: boolean;
+          row_number?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -54,6 +57,7 @@ export interface Database {
           name: string;
           description: string | null;
           tags: string[];
+          row_number: number;
           created_at: string;
           updated_at: string;
         };
@@ -63,6 +67,7 @@ export interface Database {
           name: string;
           description?: string | null;
           tags?: string[];
+          row_number?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -72,6 +77,7 @@ export interface Database {
           name?: string;
           description?: string | null;
           tags?: string[];
+          row_number?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -82,6 +88,7 @@ export interface Database {
           keyword_id: string;
           title: string | null;
           content: string;
+          row_number: number;
           created_at: string;
           updated_at: string;
         };
@@ -90,6 +97,7 @@ export interface Database {
           keyword_id: string;
           title?: string | null;
           content: string;
+          row_number?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -98,6 +106,7 @@ export interface Database {
           keyword_id?: string;
           title?: string | null;
           content?: string;
+          row_number?: number;
           created_at?: string;
           updated_at?: string;
         };

@@ -34,6 +34,16 @@ src/
 ├── lib/
 │   └── supabase/          # Supabase 설정
 ├── constants/             # 전역 상수
+
+supabase/                  # 데이터베이스 관련
+├── migrations/            # SQL 마이그레이션
+│   └── add_row_number_columns.sql
+├── TABLE_TEMPLATE.sql     # 새 테이블 생성 템플릿
+└── README_row_number.md   # row_number 사용 가이드
+
+claudedocs/                # 프로젝트 문서
+├── DATABASE_CONVENTIONS.md  # DB 스키마 표준 규칙
+└── QUICK_REFERENCE.md       # 빠른 참조 가이드
 ```
 
 ### 설계 원칙 (Toss Frontend Fundamentals)
@@ -107,7 +117,36 @@ create index if not exists links_created_at_idx on public.links(created_at desc)
 create index if not exists links_tags_idx on public.links using gin(tags);
 ```
 
-### 3. 패키지 설치 및 실행
+### 3. row_number 컬럼 추가 (필수)
+
+**모든 테이블에는 `row_number` 컬럼이 필수입니다!**
+
+Supabase SQL Editor에서 다음 마이그레이션을 실행하세요:
+
+```bash
+# 파일 위치: supabase/migrations/add_row_number_columns.sql
+```
+
+또는 직접 SQL 실행:
+
+```sql
+-- links, keywords, keyword_entries 테이블에 순번 컬럼 추가
+ALTER TABLE links ADD COLUMN IF NOT EXISTS row_number SERIAL;
+ALTER TABLE keywords ADD COLUMN IF NOT EXISTS row_number SERIAL;
+ALTER TABLE keyword_entries ADD COLUMN IF NOT EXISTS row_number SERIAL;
+
+-- 인덱스 생성
+CREATE INDEX IF NOT EXISTS idx_links_row_number ON links(row_number);
+CREATE INDEX IF NOT EXISTS idx_keywords_row_number ON keywords(row_number);
+CREATE INDEX IF NOT EXISTS idx_keyword_entries_row_number ON keyword_entries(row_number);
+```
+
+**자세한 내용**:
+- 📘 [데이터베이스 컨벤션](./claudedocs/DATABASE_CONVENTIONS.md)
+- 📋 [빠른 참조](./claudedocs/QUICK_REFERENCE.md)
+- 📝 [테이블 템플릿](./supabase/TABLE_TEMPLATE.sql)
+
+### 4. 패키지 설치 및 실행
 
 ```bash
 # 패키지 설치

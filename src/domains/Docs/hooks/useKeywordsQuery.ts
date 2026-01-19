@@ -1,16 +1,23 @@
 // @ts-nocheck - Supabase type inference issues
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase/client';
-import { DEFAULT_USER_ID } from '@/constants/config';
+import { getCurrentUserId } from '@/lib/auth';
 import type { DocsFilterOptions, KeywordWithCount } from '../types';
 
 async function fetchKeywords(
   filterOptions: DocsFilterOptions = {}
 ): Promise<KeywordWithCount[]> {
+  // 현재 로그인한 사용자 ID 가져오기
+  const userId = await getCurrentUserId();
+
+  if (!userId) {
+    throw new Error('로그인이 필요합니다');
+  }
+
   let query = supabase
     .from('keywords')
     .select('*')
-    .eq('user_id', DEFAULT_USER_ID);
+    .eq('user_id', userId);
 
   // 검색어 필터
   if (filterOptions.searchKeyword) {
