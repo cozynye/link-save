@@ -134,7 +134,7 @@ export function LinkCard({ link, onEdit, onDelete, onTogglePin }: LinkCardProps)
                 수정
               </Button>
             )}
-            {/* {onDelete && (
+            {onDelete && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -142,12 +142,12 @@ export function LinkCard({ link, onEdit, onDelete, onTogglePin }: LinkCardProps)
                   e.stopPropagation();
                   onDelete(link);
                 }}
-                className="h-7 px-2 text-destructive hover:text-destructive"
+                className="h-6 px-1.5 md:h-7 md:px-2 text-[10px] md:text-xs text-destructive hover:text-destructive"
               >
-                <Trash2 className="h-3 w-3 mr-1" />
+                <Trash2 className="h-2.5 w-2.5 md:h-3 md:w-3 mr-0.5 md:mr-1" />
                 삭제
               </Button>
-            )} */}
+            )}
           </div>
         </div>
       </CardFooter>
