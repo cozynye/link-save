@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { login } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
@@ -16,22 +16,6 @@ function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // 뒤로가기 시 보호된 페이지로 돌아가는 것을 방지
-  useEffect(() => {
-    // 보호된 경로에서 리다이렉트된 경우, 뒤로가기 시 메인으로 이동
-    if (returnUrl && (returnUrl.startsWith('/link') || returnUrl.startsWith('/docs'))) {
-      const handlePopState = () => {
-        router.replace('/');
-      };
-
-      window.addEventListener('popstate', handlePopState);
-
-      return () => {
-        window.removeEventListener('popstate', handlePopState);
-      };
-    }
-  }, [returnUrl, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUpdateEntryMutation } from '@/domains/Docs/hooks/useDocsMutations';
-import { supabase } from '@/lib/supabase/client';
+import { useEntryQuery } from '@/domains/Docs/hooks/useKeywordEntriesQuery';
 import { MarkdownPreview } from '@/domains/Docs/components/MarkdownPreview';
 import { Header } from '@/components/shared/Header';
 import { Button } from '@/components/ui/button';
@@ -11,8 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Eye, Edit } from 'lucide-react';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import type { EntryFormData, KeywordEntry } from '@/domains/Docs/types';
+import { entryUpdateSchema } from '@/domains/Docs/schemas';
+import type { EntryFormData } from '@/domains/Docs/types';
 
 interface PageProps {
   params: Promise<{
@@ -24,52 +24,40 @@ export default function EditEntryPage({ params }: PageProps) {
   const router = useRouter();
   const { id: entryId } = use(params);
   const updateEntryMutation = useUpdateEntryMutation();
+  const { data: entry, isLoading } = useEntryQuery(entryId);
 
-  const [entry, setEntry] = useState<KeywordEntry | null>(null);
   const [formData, setFormData] = useState<Partial<EntryFormData>>({
     title: '',
     content: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<EntryFormData>>({});
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
-  const [isLoading, setIsLoading] = useState(true);
 
-  // 엔트리 데이터 로드
+  // 엔트리 데이터가 로드되면 폼에 반영
   useEffect(() => {
-    async function loadEntry() {
-      const { data, error } = await supabase
-        .from('keyword_entries')
-        .select('*')
-        .eq('id', entryId)
-        .single<KeywordEntry>();
-
-      if (error) {
-        console.error('Failed to load entry:', error);
-        return;
-      }
-
-      if (data) {
-        setEntry(data);
-        setFormData({
-          title: data.title || '',
-          content: data.content,
-        });
-        setIsLoading(false);
-      }
+    if (entry) {
+      setFormData({
+        title: entry.title || '',
+        content: entry.content,
+      });
     }
-
-    loadEntry();
-  }, [entryId]);
+  }, [entry]);
 
   const validateForm = (): boolean => {
-    const errors: Partial<EntryFormData> = {};
-
-    if (!formData.content?.trim()) {
-      errors.content = '내용을 입력해주세요';
+    const result = entryUpdateSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Partial<EntryFormData> = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as keyof EntryFormData;
+        if (!errors[field]) {
+          (errors as Record<string, string>)[field] = issue.message;
+        }
+      }
+      setFormErrors(errors);
+      return false;
     }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    setFormErrors({});
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,7 +94,6 @@ export default function EditEntryPage({ params }: PageProps) {
   }
 
   return (
-    <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Header */}
         <Header />
@@ -225,6 +212,5 @@ export default function EditEntryPage({ params }: PageProps) {
         </form>
       </div>
     </div>
-    </ProtectedRoute>
   );
 }

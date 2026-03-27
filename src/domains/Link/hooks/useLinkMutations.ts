@@ -1,15 +1,12 @@
-// @ts-nocheck - Supabase type inference issues
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase/client';
 import { getCurrentUserId } from '@/lib/auth';
-import type { LinkInsert, LinkUpdate } from '../types';
-import { getLinksQueryKey } from './useLinksQuery';
+import type { Link, LinkInsert, LinkUpdate } from '../types';
 
-// 링크 생성 함수
 async function createLinkFn(data: Omit<LinkInsert, 'user_id'>) {
-  // Get current user ID from session
   const userId = await getCurrentUserId();
   if (!userId) {
     throw new Error('인증이 필요합니다');
@@ -31,9 +28,7 @@ async function createLinkFn(data: Omit<LinkInsert, 'user_id'>) {
   return link;
 }
 
-// 링크 수정 함수
 async function updateLinkFn(id: string, data: Partial<LinkUpdate>) {
-  // Check authentication
   const userId = await getCurrentUserId();
   if (!userId) {
     throw new Error('인증이 필요합니다');
@@ -56,9 +51,7 @@ async function updateLinkFn(id: string, data: Partial<LinkUpdate>) {
   return link;
 }
 
-// 링크 삭제 함수
 async function deleteLinkFn(id: string) {
-  // Check authentication
   const userId = await getCurrentUserId();
   if (!userId) {
     throw new Error('인증이 필요합니다');
@@ -73,47 +66,7 @@ async function deleteLinkFn(id: string) {
   return true;
 }
 
-// useCreateLinkMutation 훅
-export function useCreateLinkMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: Omit<LinkInsert, 'user_id'>) => createLinkFn(data),
-    onSuccess: () => {
-      // 모든 링크 쿼리 무효화하여 재조회 (필터 옵션과 무관하게 'links'로 시작하는 모든 쿼리)
-      queryClient.invalidateQueries({ queryKey: ['links'] });
-    },
-  });
-}
-
-// useUpdateLinkMutation 훅
-export function useUpdateLinkMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<LinkUpdate> }) =>
-      updateLinkFn(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['links'] });
-    },
-  });
-}
-
-// useDeleteLinkMutation 훅
-export function useDeleteLinkMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => deleteLinkFn(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['links'] });
-    },
-  });
-}
-
-// 링크 고정 토글 함수
 async function togglePinLinkFn(id: string, isPinned: boolean) {
-  // Check authentication
   const userId = await getCurrentUserId();
   if (!userId) {
     throw new Error('인증이 필요합니다');
@@ -136,14 +89,92 @@ async function togglePinLinkFn(id: string, isPinned: boolean) {
   return link;
 }
 
-// useTogglePinMutation 훅
+export function useCreateLinkMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Omit<LinkInsert, 'user_id'>) => createLinkFn(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['links'] });
+      toast.success('링크가 추가되었습니다');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '링크 추가에 실패했습니다');
+    },
+  });
+}
+
+export function useUpdateLinkMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<LinkUpdate> }) =>
+      updateLinkFn(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['links'] });
+      toast.success('링크가 수정되었습니다');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '링크 수정에 실패했습니다');
+    },
+  });
+}
+
+export function useDeleteLinkMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteLinkFn(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['links'] });
+      const previousData = queryClient.getQueriesData({ queryKey: ['links'] });
+      queryClient.setQueriesData<Link[]>({ queryKey: ['links'] }, (old) =>
+        old?.filter((link) => link.id !== id)
+      );
+      return { previousData };
+    },
+    onError: (_error, _id, context) => {
+      if (context?.previousData) {
+        for (const [queryKey, data] of context.previousData) {
+          queryClient.setQueryData(queryKey, data);
+        }
+      }
+      toast.error('링크 삭제에 실패했습니다');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['links'] });
+    },
+    onSuccess: () => {
+      toast.success('링크가 삭제되었습니다');
+    },
+  });
+}
+
 export function useTogglePinMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, isPinned }: { id: string; isPinned: boolean }) =>
       togglePinLinkFn(id, isPinned),
-    onSuccess: () => {
+    onMutate: async ({ id, isPinned }) => {
+      await queryClient.cancelQueries({ queryKey: ['links'] });
+      const previousData = queryClient.getQueriesData({ queryKey: ['links'] });
+      queryClient.setQueriesData<Link[]>({ queryKey: ['links'] }, (old) =>
+        old?.map((link) =>
+          link.id === id ? { ...link, is_pinned: isPinned } : link
+        )
+      );
+      return { previousData };
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previousData) {
+        for (const [queryKey, data] of context.previousData) {
+          queryClient.setQueryData(queryKey, data);
+        }
+      }
+      toast.error('고정 변경에 실패했습니다');
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['links'] });
     },
   });

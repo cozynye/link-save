@@ -7,7 +7,7 @@ import { Header } from '@/components/shared/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Search, BookOpen, ArrowUpDown } from 'lucide-react';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import Link from 'next/link';
 import type { DocsFilterOptions } from '@/domains/Docs/types';
 
 export default function DocsPage() {
@@ -41,10 +41,16 @@ export default function DocsPage() {
   };
 
   return (
-    <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Sticky Header */}
-        <Header />
+        <Header actions={
+          <Button size="sm" className="gap-2" asChild>
+            <Link href="/docs/new">
+              <Plus className="h-4 w-4" />
+              새 엔트리
+            </Link>
+          </Button>
+        } />
 
         {/* Main Content */}
         <div className="container mx-auto max-w-[1240px] px-4 py-8">
@@ -113,6 +119,5 @@ export default function DocsPage() {
         )}
       </div>
     </div>
-    </ProtectedRoute>
   );
 }

@@ -23,3 +23,25 @@ export function useKeywordEntriesQuery(keywordId: string | undefined) {
     enabled: !!keywordId,
   });
 }
+
+async function fetchEntry(entryId: string): Promise<KeywordEntry> {
+  const { data, error } = await supabase
+    .from('keyword_entries')
+    .select('*')
+    .eq('id', entryId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data as KeywordEntry;
+}
+
+export function useEntryQuery(entryId: string | undefined) {
+  return useQuery({
+    queryKey: ['keyword_entry', entryId],
+    queryFn: () => fetchEntry(entryId!),
+    enabled: !!entryId,
+  });
+}

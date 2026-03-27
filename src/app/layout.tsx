@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/lib/react-query/QueryProvider";
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -81,7 +83,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <ErrorBoundary>
+          <QueryProvider>{children}</QueryProvider>
+          <Toaster position="bottom-right" richColors />
+        </ErrorBoundary>
       </body>
     </html>
   );

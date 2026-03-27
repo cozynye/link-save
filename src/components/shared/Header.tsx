@@ -3,21 +3,20 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { LinkForm } from '@/domains/Link/components/LinkForm';
 import { Button } from '@/components/ui/button';
-import { Plus, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { isAuthenticated, logout } from '@/lib/auth';
 
 interface HeaderProps {
-  onLinkAdded?: () => void;
+  actions?: React.ReactNode;
 }
 
-export function Header({ onLinkAdded }: HeaderProps) {
+export function Header({ actions }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isAuthed, setIsAuthed] = useState(false);
-  const isDocsPage = pathname?.startsWith('/docs');
-  const isLinkPage = pathname?.startsWith('/link');
+
+  const isProtectedPage = pathname?.startsWith('/docs') || pathname?.startsWith('/link');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -45,7 +44,7 @@ export function Header({ onLinkAdded }: HeaderProps) {
             <Link
               href="/link"
               className={`text-sm transition-colors ${
-                isLinkPage
+                pathname?.startsWith('/link')
                   ? 'text-foreground font-semibold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
@@ -55,7 +54,7 @@ export function Header({ onLinkAdded }: HeaderProps) {
             <Link
               href="/docs"
               className={`text-sm transition-colors ${
-                isDocsPage
+                pathname?.startsWith('/docs')
                   ? 'text-foreground font-semibold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
@@ -64,20 +63,9 @@ export function Header({ onLinkAdded }: HeaderProps) {
             </Link>
           </div>
           <div className="flex items-center gap-2">
-            {isDocsPage ? (
-              <Button
-                size="sm"
-                className="gap-2"
-                onClick={() => router.push('/docs/new')}
-              >
-                <Plus className="h-4 w-4" />
-                새 엔트리
-              </Button>
-            ) : isLinkPage ? (
-              <LinkForm onSuccess={onLinkAdded} />
-            ) : null}
+            {actions}
 
-            {isAuthed && (isDocsPage || isLinkPage) && (
+            {isAuthed && isProtectedPage && (
               <Button
                 size="sm"
                 variant="outline"

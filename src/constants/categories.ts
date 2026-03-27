@@ -62,5 +62,6 @@ export const TAG_COLORS: Record<string, string> = {
   튜토리얼: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
   아티클: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300",
   영상: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+  IDE: "bg-zinc-100 text-zinc-800 dark:bg-zinc-900 dark:text-zinc-300",
   기타: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
 };

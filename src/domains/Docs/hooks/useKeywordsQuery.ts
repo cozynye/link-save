@@ -1,4 +1,3 @@
-// @ts-nocheck - Supabase type inference issues
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase/client';
 import { getCurrentUserId } from '@/lib/auth';
@@ -7,7 +6,6 @@ import type { DocsFilterOptions, KeywordWithCount } from '../types';
 async function fetchKeywords(
   filterOptions: DocsFilterOptions = {}
 ): Promise<KeywordWithCount[]> {
-  // 현재 로그인한 사용자 ID 가져오기
   const userId = await getCurrentUserId();
 
   if (!userId) {
@@ -16,7 +14,7 @@ async function fetchKeywords(
 
   let query = supabase
     .from('keywords')
-    .select('*')
+    .select('*, keyword_entries(count)')
     .eq('user_id', userId);
 
   // 검색어 필터
@@ -40,20 +38,16 @@ async function fetchKeywords(
     throw error;
   }
 
-  // 각 키워드의 엔트리 개수 조회
-  const keywordsWithCount = await Promise.all(
-    (data || []).map(async (keyword) => {
-      const { count } = await supabase
-        .from('keyword_entries')
-        .select('*', { count: 'exact', head: true })
-        .eq('keyword_id', keyword.id);
-
-      return {
-        ...keyword,
-        entry_count: count || 0,
-      };
-    })
-  );
+  // Supabase 관계 쿼리 결과에서 entry_count 추출
+  const keywordsWithCount: KeywordWithCount[] = (data || []).map((keyword: Record<string, unknown>) => {
+    const entries = keyword.keyword_entries as { count: number }[] | undefined;
+    const entryCount = entries?.[0]?.count ?? 0;
+    const { keyword_entries: _, ...rest } = keyword;
+    return {
+      ...rest,
+      entry_count: entryCount,
+    } as KeywordWithCount;
+  });
 
   return keywordsWithCount;
 }

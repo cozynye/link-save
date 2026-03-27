@@ -17,6 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
 
 interface ResponsiveModalProps {
   children: React.ReactNode;
@@ -29,16 +30,7 @@ export function ResponsiveModal({ children, open: controlledOpen, onOpenChange }
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = onOpenChange || setInternalOpen;
 
-  const [isDesktop, setIsDesktop] = React.useState(false);
-
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 768px)');
-    setIsDesktop(mediaQuery.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   if (isDesktop) {
     return (
@@ -61,16 +53,7 @@ interface ResponsiveModalTriggerProps {
 }
 
 export function ResponsiveModalTrigger({ children, asChild }: ResponsiveModalTriggerProps) {
-  const [isDesktop, setIsDesktop] = React.useState(false);
-
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 768px)');
-    setIsDesktop(mediaQuery.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   if (isDesktop) {
     return <DialogTrigger asChild={asChild}>{children}</DialogTrigger>;
@@ -86,16 +69,7 @@ interface ResponsiveModalContentProps {
 }
 
 export function ResponsiveModalContent({ children, title, description }: ResponsiveModalContentProps) {
-  const [isDesktop, setIsDesktop] = React.useState(false);
-
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 768px)');
-    setIsDesktop(mediaQuery.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   // children을 배열로 변환하여 Footer와 일반 콘텐츠를 분리
   const childrenArray = React.Children.toArray(children);
@@ -144,16 +118,7 @@ interface ResponsiveModalFooterProps {
 }
 
 export function ResponsiveModalFooter({ children }: ResponsiveModalFooterProps) {
-  const [isDesktop, setIsDesktop] = React.useState(false);
-
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 768px)');
-    setIsDesktop(mediaQuery.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   if (isDesktop) {
     return (

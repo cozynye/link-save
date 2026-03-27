@@ -1,5 +1,5 @@
-// @ts-nocheck - Supabase type inference issues with insert/update operations
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase/client';
 import { getCurrentUserId } from '@/lib/auth';
 import type { EntryFormData, KeywordEntry } from '../types';
@@ -28,7 +28,6 @@ async function getOrCreateKeyword(
   }
 
   // 새 키워드 생성
-  // @ts-ignore - Supabase type inference issue
   const { data: newKeyword, error } = await supabase
     .from('keywords')
     .insert({
@@ -70,7 +69,6 @@ async function createEntryFn(data: EntryFormData): Promise<KeywordEntry> {
     throw new Error('키워드 ID 또는 키워드명이 필요합니다');
   }
 
-  // @ts-ignore - Supabase type inference issue
   const { data: entry, error } = await supabase
     .from('keyword_entries')
     .insert({
@@ -103,7 +101,6 @@ async function updateEntryFn(
     throw new Error('인증이 필요합니다');
   }
 
-  // @ts-ignore - Supabase type inference issue
   const { data: entry, error } = await supabase
     .from('keyword_entries')
     .update({
@@ -165,6 +162,10 @@ export function useCreateEntryMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['keywords'] });
       queryClient.invalidateQueries({ queryKey: ['keyword_entries'] });
+      toast.success('엔트리가 생성되었습니다');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '엔트리 생성에 실패했습니다');
     },
   });
 }
@@ -178,6 +179,11 @@ export function useUpdateEntryMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['keyword_entries'] });
       queryClient.invalidateQueries({ queryKey: ['keywords'] });
+      queryClient.invalidateQueries({ queryKey: ['keyword_entry'] });
+      toast.success('엔트리가 수정되었습니다');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '엔트리 수정에 실패했습니다');
     },
   });
 }
@@ -190,6 +196,10 @@ export function useDeleteEntryMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['keyword_entries'] });
       queryClient.invalidateQueries({ queryKey: ['keywords'] });
+      toast.success('엔트리가 삭제되었습니다');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '엔트리 삭제에 실패했습니다');
     },
   });
 }
@@ -202,6 +212,10 @@ export function useDeleteKeywordMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['keywords'] });
       queryClient.invalidateQueries({ queryKey: ['keyword_entries'] });
+      toast.success('키워드가 삭제되었습니다');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : '키워드 삭제에 실패했습니다');
     },
   });
 }

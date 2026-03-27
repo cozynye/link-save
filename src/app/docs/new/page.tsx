@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Eye, Edit } from 'lucide-react';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { entryFormSchema } from '@/domains/Docs/schemas';
 import type { EntryFormData } from '@/domains/Docs/types';
 
 // Prevent static generation due to useSearchParams
@@ -57,18 +57,20 @@ function NewEntryForm() {
   const error = createEntryMutation.error;
 
   const validateForm = (): boolean => {
-    const errors: Partial<EntryFormData> = {};
-
-    if (!formData.keywordName?.trim()) {
-      errors.keywordName = '키워드를 입력해주세요';
+    const result = entryFormSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Partial<EntryFormData> = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as keyof EntryFormData;
+        if (!errors[field]) {
+          (errors as Record<string, string>)[field] = issue.message;
+        }
+      }
+      setFormErrors(errors);
+      return false;
     }
-
-    if (!formData.content?.trim()) {
-      errors.content = '내용을 입력해주세요';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    setFormErrors({});
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,7 +98,6 @@ function NewEntryForm() {
   };
 
   return (
-    <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Header */}
         <Header />
@@ -239,7 +240,6 @@ function NewEntryForm() {
         </form>
       </div>
     </div>
-    </ProtectedRoute>
   );
 }
 

@@ -17,6 +17,7 @@ import {
   useUpdateLinkMutation,
 } from "../../hooks/useLinkMutations";
 import { Plus, Sparkles } from "lucide-react";
+import { linkFormSchema } from "../../schemas";
 import type { LinkFormData, Link } from "../../types";
 
 interface LinkFormProps {
@@ -110,22 +111,20 @@ export function LinkForm({
   };
 
   const validateForm = (): boolean => {
-    const errors: Partial<LinkFormData> = {};
-
-    // URL 필수 검증
-    if (!formData.url.trim()) {
-      errors.url = "URL을 입력해주세요";
-    } else {
-      // URL 형식 검증
-      try {
-        new URL(formData.url);
-      } catch {
-        errors.url = "올바른 URL 형식이 아닙니다";
+    const result = linkFormSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Partial<LinkFormData> = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as keyof LinkFormData;
+        if (!errors[field]) {
+          (errors as Record<string, string>)[field] = issue.message;
+        }
       }
+      setFormErrors(errors);
+      return false;
     }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    setFormErrors({});
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

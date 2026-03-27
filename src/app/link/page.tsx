@@ -7,7 +7,6 @@ import { LinkList } from '@/domains/Link/components/LinkList';
 import { LinkFilter } from '@/domains/Link/components/LinkFilter';
 import { LinkDeleteDialog } from '@/domains/Link/components/LinkDeleteDialog';
 import { useTogglePinMutation } from '@/domains/Link/hooks/useLinkMutations';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { Link, LinkFilterOptions } from '@/domains/Link/types';
 
 export default function Home() {
@@ -19,8 +18,7 @@ export default function Home() {
   const togglePinMutation = useTogglePinMutation();
 
   const handleLinkAdded = () => {
-    console.log('링크가 추가되었습니다!');
-    // LinkList는 실시간 구독으로 자동 업데이트됨
+    // React Query가 자동으로 쿼리를 무효화하여 목록을 갱신
   };
 
   const handleEditLink = (link: Link) => {
@@ -49,10 +47,9 @@ export default function Home() {
   };
 
   return (
-    <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Sticky Header */}
-        <Header onLinkAdded={handleLinkAdded} />
+        <Header actions={<LinkForm onSuccess={handleLinkAdded} />} />
 
         {/* Main Content */}
         <div className="container mx-auto max-w-[1240px] px-4 py-8">
@@ -88,6 +85,5 @@ export default function Home() {
           onSuccess={handleDeleteSuccess}
         />
       </div>
-    </ProtectedRoute>
   );
 }

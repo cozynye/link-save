@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2, Plus } from 'lucide-react';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import type { KeywordEntry } from '@/domains/Docs/types';
 
 interface PageProps {
@@ -48,7 +47,6 @@ export default function KeywordDetailPage({ params }: PageProps) {
   };
 
   return (
-    <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* Header */}
         <Header />
@@ -130,6 +128,5 @@ export default function KeywordDetailPage({ params }: PageProps) {
         onSuccess={handleDeleteSuccess}
       />
     </div>
-    </ProtectedRoute>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, X, SlidersHorizontal } from "lucide-react";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +39,18 @@ export function LinkFilter({ onFilterChange }: LinkFilterProps) {
   const [tempSortBy, setTempSortBy] = useState<"created_at" | "title" | "updated_at">("updated_at");
   const [tempSortOrder, setTempSortOrder] = useState<"asc" | "desc">("desc");
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  // 디바운스된 검색어가 변경되면 필터 업데이트
+  useEffect(() => {
+    onFilterChange({
+      searchQuery: debouncedSearchQuery,
+      tags: selectedTags,
+      sortBy,
+      sortOrder,
+    });
+  }, [debouncedSearchQuery]);
+
   // 필터 업데이트 헬퍼
   const updateFilters = (
     newSearch?: string,
@@ -53,10 +66,9 @@ export function LinkFilter({ onFilterChange }: LinkFilterProps) {
     });
   };
 
-  // 검색어 변경
+  // 검색어 변경 (디바운스 적용 - useEffect에서 처리)
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    updateFilters(value);
   };
 
   // 검색어 초기화
