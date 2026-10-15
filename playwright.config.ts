@@ -1,51 +1,26 @@
-import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
-import path from 'path';
-
-// Load .env.local for test credentials
-dotenv.config({ path: path.resolve(__dirname, '.env.local') });
+import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
-  testDir: './tests',
-  fullyParallel: false,
+  testDir: './tests/e2e',
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: 1,
-  reporter: 'html',
+  retries: process.env.CI ? 1 : 0,
+  reporter: process.env.CI ? 'github' : 'list',
   use: {
-    baseURL: 'http://localhost:3010',
-    trace: 'on-first-retry',
-    actionTimeout: 10000,
-    navigationTimeout: 15000,
+    baseURL: 'http://localhost:5173',
+    trace: 'retain-on-failure',
+    // Service workers are a no-op in dev (vite-plugin-pwa devOptions.enabled is unset/false),
+    // but we block them explicitly so they can never intercept page.route mocks.
+    serviceWorkers: 'block',
   },
-
   projects: [
-    {
-      name: 'setup',
-      testMatch: /global-setup\.ts/,
-    },
-    {
-      name: 'unauthenticated',
-      testMatch: /tests\/auth\/login\.spec\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-      },
-      dependencies: ['setup'],
-    },
-    {
-      name: 'chromium',
-      testIgnore: /tests\/auth\/login\.spec\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: './tests/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },
+    { name: 'mobile', use: { ...devices['Pixel 7'] } },
   ],
-
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3010',
+    command: 'npm run dev -- --port 5173 --strictPort',
+    url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
+    timeout: 60_000,
   },
-});
+})

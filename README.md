@@ -1,192 +1,46 @@
-# SaveLink - 링크 저장 서비스
+# SaveLink
 
-여러 기기에서 접근 가능한 개인용 링크 관리 서비스입니다.
+유용한 링크를 저장하고, 태그와 노트를 언제든 고칠 수 있는 개인용 도구입니다. 데이터베이스와 로그인 서버가 없습니다. 브라우저가 GitHub 비공개 레포의 `links.json` 파일 하나를 직접 읽고 씁니다.
 
-## 🎯 핵심 기능
+## 어떻게 동작하나
 
-1. **링크 저장** - URL과 함께 제목, 설명 저장
-2. **링크 표시** - 저장된 링크를 카드 형태로 표시
-3. **필터링** - 태그별로 링크 필터링
-4. **태그 관리** - 카테고리별 링크 구분 (AI, 아키텍처, 면접, CS, React 등)
+- **저장소**: 내 GitHub 비공개 레포 `save-link-data`의 `links.json`. 커밋 이력이 곧 백업입니다.
+- **인증**: 그 레포 하나에만 Contents 읽기·쓰기 권한을 준 fine-grained 토큰. 기기마다 한 번 붙여 넣고 브라우저에만 저장됩니다.
+- **서버**: OG 메타데이터를 대신 읽어 주는 Vercel 함수 `api/metadata.ts` 하나.
+- **쓰기**: 모든 변경은 커밋 하나. 다른 기기가 먼저 썼으면 최신본을 받아 재적용합니다.
 
-## 🛠️ 기술 스택
+설계 문서: `docs/superpowers/specs/2026-10-14-save-link-v2-design.md`
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
+## 처음 설정
 
-## 📁 프로젝트 구조
+1. GitHub에서 비공개 레포 `save-link-data`를 만듭니다.
+2. [fine-grained 토큰](https://github.com/settings/personal-access-tokens/new)을 만듭니다. Repository access는 그 레포 하나, Permissions는 Contents: Read and write, 만료는 최대 1년.
+3. 배포된 앱을 열고 사용자명과 토큰을 붙여 넣으면 빈 `links.json`이 자동으로 생깁니다.
 
-```
-src/
-├── app/                    # Next.js App Router
-├── components/
-│   ├── ui/                # shadcn/ui 기본 컴포넌트
-│   └── shared/            # 공유 컴포넌트
-├── domains/               # 도메인 중심 구조
-│   └── Link/
-│       ├── components/    # Link 전용 컴포넌트
-│       ├── hooks/         # Link 관련 훅
-│       ├── utils/         # Link 유틸리티
-│       └── types.ts       # Link 타입 정의
-├── lib/
-│   └── supabase/          # Supabase 설정
-├── constants/             # 전역 상수
+## 빠른 저장
 
-supabase/                  # 데이터베이스 관련
-├── migrations/            # SQL 마이그레이션
-│   └── add_row_number_columns.sql
-├── TABLE_TEMPLATE.sql     # 새 테이블 생성 템플릿
-└── README_row_number.md   # row_number 사용 가이드
+- **데스크톱**: 설정 → 빠른 저장의 "SaveLink에 저장" 버튼을 북마크 바로 끌어 놓습니다.
+- **iPhone**: 단축어 앱에서 "공유 시트에서 URL 받기 → URL 인코딩 → `https://<앱 주소>/?url=<인코딩 결과>` 열기" 세 액션짜리 단축어를 만듭니다.
+- 둘 다 앱을 `?url=` 파라미터로 여는 것뿐이라 어떤 환경에서도 같은 방식으로 붙일 수 있습니다.
 
-claudedocs/                # 프로젝트 문서
-├── DATABASE_CONVENTIONS.md  # DB 스키마 표준 규칙
-└── QUICK_REFERENCE.md       # 빠른 참조 가이드
-```
-
-### 설계 원칙 (Toss Frontend Fundamentals)
-
-- **응집도**: 도메인별 구조로 관련 코드를 한 곳에 배치
-- **가독성**: 복잡한 로직 분리, 명확한 네이밍
-- **예측 가능성**: 부수효과 명시, 명확한 함수 이름
-- **결합도**: 단일 책임 원칙, Props Drilling 최소화
-
-## 🚀 시작하기
-
-### 1. 환경 변수 설정
-
-`.env.local.example`을 복사하여 `.env.local` 파일을 생성하세요:
+## 개발
 
 ```bash
-cp .env.local.example .env.local
-```
-
-Supabase 프로젝트에서 URL과 Anon Key를 가져와 `.env.local`에 입력하세요:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### 2. Supabase 테이블 생성
-
-Supabase SQL Editor에서 다음 SQL을 실행하세요:
-
-```sql
--- links 테이블 생성
-create table if not exists public.links (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id) on delete cascade not null,
-  url text not null,
-  title text not null,
-  description text,
-  thumbnail_url text,
-  tags text[] default '{}',
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
-
--- RLS (Row Level Security) 활성화
-alter table public.links enable row level security;
-
--- 정책: 사용자는 자신의 링크만 조회 가능
-create policy "Users can view their own links"
-  on public.links for select
-  using (auth.uid() = user_id);
-
--- 정책: 사용자는 자신의 링크만 생성 가능
-create policy "Users can create their own links"
-  on public.links for insert
-  with check (auth.uid() = user_id);
-
--- 정책: 사용자는 자신의 링크만 수정 가능
-create policy "Users can update their own links"
-  on public.links for update
-  using (auth.uid() = user_id);
-
--- 정책: 사용자는 자신의 링크만 삭제 가능
-create policy "Users can delete their own links"
-  on public.links for delete
-  using (auth.uid() = user_id);
-
--- 인덱스 생성 (성능 최적화)
-create index if not exists links_user_id_idx on public.links(user_id);
-create index if not exists links_created_at_idx on public.links(created_at desc);
-create index if not exists links_tags_idx on public.links using gin(tags);
-```
-
-### 3. row_number 컬럼 추가 (필수)
-
-**모든 테이블에는 `row_number` 컬럼이 필수입니다!**
-
-Supabase SQL Editor에서 다음 마이그레이션을 실행하세요:
-
-```bash
-# 파일 위치: supabase/migrations/add_row_number_columns.sql
-```
-
-또는 직접 SQL 실행:
-
-```sql
--- links, keywords, keyword_entries 테이블에 순번 컬럼 추가
-ALTER TABLE links ADD COLUMN IF NOT EXISTS row_number SERIAL;
-ALTER TABLE keywords ADD COLUMN IF NOT EXISTS row_number SERIAL;
-ALTER TABLE keyword_entries ADD COLUMN IF NOT EXISTS row_number SERIAL;
-
--- 인덱스 생성
-CREATE INDEX IF NOT EXISTS idx_links_row_number ON links(row_number);
-CREATE INDEX IF NOT EXISTS idx_keywords_row_number ON keywords(row_number);
-CREATE INDEX IF NOT EXISTS idx_keyword_entries_row_number ON keyword_entries(row_number);
-```
-
-**자세한 내용**:
-- 📘 [데이터베이스 컨벤션](./claudedocs/DATABASE_CONVENTIONS.md)
-- 📋 [빠른 참조](./claudedocs/QUICK_REFERENCE.md)
-- 📝 [테이블 템플릿](./supabase/TABLE_TEMPLATE.sql)
-
-### 4. 패키지 설치 및 실행
-
-```bash
-# 패키지 설치
 npm install
-
-# 개발 서버 실행
-npm run dev
+npm run dev        # http://localhost:5173, /api/metadata도 함께 동작
+npm test           # Vitest
+npm run test:e2e   # Playwright (GitHub API는 모킹)
+npm run build
 ```
 
-브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인하세요.
+## 배포
 
-## 📦 사용된 shadcn/ui 컴포넌트
+Vercel에 레포를 연결하면 됩니다. 프레임워크는 Vite로 자동 감지되고 `api/`는 서버리스 함수로 올라갑니다. 환경 변수는 필요하지 않습니다. `vercel.json`의 CSP가 서드파티 스크립트를 막으므로 외부 스크립트를 추가하려면 함께 고쳐야 합니다.
 
-- `button` - 저장, 삭제 버튼
-- `card` - 링크 아이템 표시
-- `input` - URL 입력
-- `badge` - 태그 표시
-- `dialog` - 링크 추가/수정 모달
-- `textarea` - 설명 입력
-- `label` - 폼 레이블
+## 한계
 
-## 🔜 개발 로드맵
-
-### Phase 1: 기본 기능 (현재)
-- [ ] 링크 추가 폼 구현
-- [ ] 링크 목록 표시
-- [ ] 태그 선택 기능
-- [ ] Supabase 연동
-
-### Phase 2: 필터링 & 검색
-- [ ] 태그별 필터링
-- [ ] 검색 기능
-- [ ] 정렬 기능 (최신순, 오래된순)
-
-### Phase 3: 고급 기능
-- [ ] 링크 메타데이터 자동 추출
-- [ ] 썸네일 이미지 표시
-- [ ] 즐겨찾기 기능
-- [ ] 링크 내보내기 (JSON, CSV)
-
-## 📝 라이선스
-
-MIT
+- 토큰이 브라우저 localStorage에 있습니다. 공용 기기에서는 쓰지 마세요.
+- GitHub Contents API의 JSON 응답 상한은 1MB입니다. 링크 약 2,000개 근처에서 파일 분할이 필요합니다.
+- 두 기기가 같은 항목을 동시에 고치면 나중 쓰기가 이깁니다.
+- 오프라인에서는 읽기만 됩니다.
+- 메타데이터 함수는 IP 주소로 쓴 내부 주소는 막지만, 내부 IP로 해석되는 도메인 이름(DNS)까지는 막지 않습니다.
