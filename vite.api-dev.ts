@@ -2,15 +2,16 @@ import type { Plugin } from 'vite'
 
 type Handler = (request: Request) => Promise<Response>
 
-/** 개발 중 `/api/metadata`를 Vercel 함수 모듈로 처리한다. 배포에서는 Vercel이 `api/`를 직접 서빙한다. */
+/** 개발 중 `/api/metadata`, `/api/allowed`를 Vercel 함수 모듈로 처리한다. 배포에서는 Vercel이 `api/`를 직접 서빙한다. */
 export function vercelApiDev(): Plugin {
   return {
     name: 'savelink-vercel-api-dev',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (!req.url || !/^\/api\/metadata(?:\?.*)?$/.test(req.url)) return next()
+        const match = req.url ? /^\/api\/(metadata|allowed)(?:\?.*)?$/.exec(req.url) : null
+        if (!match) return next()
         try {
-          const mod = (await server.ssrLoadModule('/api/metadata.ts')) as { GET: Handler }
+          const mod = (await server.ssrLoadModule(`/api/${match[1]}.ts`)) as { GET: Handler }
           const headers = new Headers()
           for (const [key, value] of Object.entries(req.headers)) {
             if (typeof value === 'string') headers.set(key, value)

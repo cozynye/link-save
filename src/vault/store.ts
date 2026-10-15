@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { clearCache, clearSettings, loadCache, loadSettings, saveCache, saveSettings, DEFAULT_PATH, type Settings } from '@/lib/settings'
 import { applyTheme, type ThemePref } from '@/lib/theme'
 import { GithubAuthError, GithubError, GithubNotFoundError, GithubOversizeError, GithubVaultClient } from './github'
+import { checkOwner, type OwnerCheckResult } from './ownerCheck'
 import { findTagByName, pickTagColor, type LinkPatch, type Op, type TagPatch } from './ops'
 import { WriteQueue, type Confirmed, type QueueSnapshot } from './queue'
 import { emptyVault, newLinkId, newTagId, parseVault, serializeVault, type Link, type Tag, type TagColor, type Vault } from './schema'
@@ -132,6 +133,10 @@ async function openVault(c: GithubVaultClient): Promise<OpenResult> {
   }
   return { ok: true, value: { vault: parsed.vault, sha } }
 }
+
+const TOKEN_ERROR_MESSAGE = '토큰을 확인해 주세요. 권한이 없거나 만료되었습니다'
+
+let ownerCheck: (token: string) => Promise<OwnerCheckResult> = (token) => checkOwner(token)
 
 export const useVaultStore = create<VaultState>()((set, get) => {
   const syncFromQueue = (snapshot: QueueSnapshot) => {
@@ -283,6 +288,10 @@ export const useVaultStore = create<VaultState>()((set, get) => {
         token: input.token.trim(),
         theme,
       }
+      // 허용된 계정만 연결할 수 있다. 다른 계정은 잘못된 토큰과 같은 문구를 보여 구분되지 않게 한다.
+      const owner = await ownerCheck(settings.token)
+      if (owner === 'unreachable') return { ok: false, message: '네트워크에 연결할 수 없습니다' }
+      if (owner === 'denied') return { ok: false, message: TOKEN_ERROR_MESSAGE }
       const c = new GithubVaultClient({ owner: settings.owner, repo: settings.repo, path: settings.path }, settings.token)
       try {
         const opened = await openVault(c)
@@ -312,7 +321,7 @@ export const useVaultStore = create<VaultState>()((set, get) => {
         becomeReady(opened.value)
         return { ok: true }
       } catch (error) {
-        if (error instanceof GithubAuthError) return { ok: false, message: '토큰을 확인해 주세요. 권한이 없거나 만료되었습니다' }
+        if (error instanceof GithubAuthError) return { ok: false, message: TOKEN_ERROR_MESSAGE }
         if (error instanceof GithubError) return { ok: false, message: `GitHub 응답 ${error.status}. 소유자와 레포 이름을 확인해 주세요` }
         return { ok: false, message: '네트워크에 연결할 수 없습니다' }
       }
@@ -408,7 +417,13 @@ export const useVaultStore = create<VaultState>()((set, get) => {
   }
 })
 
+/** 테스트에서 허용 계정 확인을 바꿔 끼운다. resetVaultStoreForTests는 항상 허용으로 되돌린다. */
+export function setOwnerCheckForTests(fn: (token: string) => Promise<OwnerCheckResult>): void {
+  ownerCheck = fn
+}
+
 export function resetVaultStoreForTests(): void {
+  ownerCheck = async () => 'allowed'
   queue = null
   queueClient = null
   generation = 0

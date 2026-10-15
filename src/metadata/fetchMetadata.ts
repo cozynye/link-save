@@ -1,3 +1,5 @@
+import { loadSettings } from '@/lib/settings'
+
 export interface LinkMetadata {
   title: string
   description: string
@@ -11,7 +13,9 @@ export async function fetchMetadata(
   fetchImpl: typeof fetch = (input, init) => globalThis.fetch(input, init),
 ): Promise<LinkMetadata | null> {
   try {
-    const res = await fetchImpl(`/api/metadata?url=${encodeURIComponent(url)}`, { signal })
+    const token = loadSettings()?.token
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
+    const res = await fetchImpl(`/api/metadata?url=${encodeURIComponent(url)}`, { signal, headers })
     if (!res.ok) return null
     const data = (await res.json()) as Partial<Record<keyof LinkMetadata, unknown>>
     return {

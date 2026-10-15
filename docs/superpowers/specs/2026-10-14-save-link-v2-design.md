@@ -67,6 +67,14 @@
   - `savelink.cache`: `{ data, sha, fetchedAt }` 마지막으로 성공한 사본.
 - 토큰과 레포 좌표는 데이터 파일에 넣지 않는다.
 
+### 4.5 허용 계정 제한 (2026-10-15 추가)
+
+- 앱은 `api/_owner.ts`의 `ALLOWED_GITHUB_LOGINS`(현재 `cozynye`)만 쓸 수 있다.
+- 연결 시 브라우저가 `/api/allowed`에 `Authorization: Bearer <토큰>`을 보낸다. 서버는 `GET https://api.github.com/user`로 주인을 확인하고 200/401/403을 돌려준다. 200이 아니거나 서버에 닿지 못하면 연결하지 않는다.
+- 다른 계정에는 잘못된 토큰과 같은 문구("토큰을 확인해 주세요…")만 보여 개인용임을 드러내지 않는다.
+- `/api/metadata`도 같은 확인을 거친다. 응답은 `Cache-Control: private, max-age=86400`로 CDN 공용 캐시에 두지 않는다.
+- 토큰은 서버에 저장하지 않고, SHA-256 해시와 확인된 계정을 함수 메모리에 10분간 캐시한다. 이 변경으로 "토큰이 브라우저 밖으로 나가지 않는다"는 원래 전제는 이 앱 소유의 함수에 한해 완화된다.
+
 ### 4.2 GitHub Contents API 호출 규약
 
 공통 헤더: `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`, `X-GitHub-Api-Version: 2022-11-28`.
@@ -266,7 +274,7 @@
 
 **요청.** `GET /api/metadata?url=<인코딩된 URL>`.
 
-**응답.** 200에 `{ title: string, description: string, image: string | null, siteName: string }`. `siteName`이 비어 있으면 `www.`를 뗀 호스트명. `Cache-Control: public, s-maxage=86400, stale-while-revalidate=604800`.
+**응답.** 200에 `{ title: string, description: string, image: string | null, siteName: string }`. `siteName`이 비어 있으면 `www.`를 뗀 호스트명. `Cache-Control: private, max-age=86400` (허용 계정 제한 이후, 4.5 참고).
 
 **검사 순서.**
 1. 출처 검사. `Sec-Fetch-Site` 헤더가 `same-origin`이면 통과. 그 헤더가 없으면 `Origin` 또는 `Referer`의 호스트가 요청 호스트와 같은지 본다. 같은 origin의 GET에는 브라우저가 `Origin`을 보내지 않으므로 `Referer`까지 봐야 한다. 개발 중 `localhost`는 허용. 어느 것도 없으면 403.
