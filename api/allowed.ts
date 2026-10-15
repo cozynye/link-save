@@ -1,4 +1,4 @@
-import { verifyOwner } from './_owner'
+import { verifyOwner } from './_owner.js'
 
 /** 연결 단계에서 토큰 주인이 허용된 계정인지 알려 준다. 200 / 401 / 403. */
 export async function GET(request: Request): Promise<Response> {

@@ -1,9 +1,9 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { verifyOwner } from './_owner'
+import { verifyOwner } from './_owner.js'
 import { GET } from './allowed'
 
-vi.mock('./_owner', () => ({ verifyOwner: vi.fn() }))
+vi.mock('./_owner.js', () => ({ verifyOwner: vi.fn() }))
 const mocked = vi.mocked(verifyOwner)
 afterEach(() => mocked.mockReset())
 

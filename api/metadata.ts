@@ -1,4 +1,4 @@
-import { verifyOwner } from './_owner'
+import { verifyOwner } from './_owner.js'
 
 export interface LinkMetadata {
   title: string
