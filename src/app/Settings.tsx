@@ -25,7 +25,7 @@ export function SettingsSheet() {
   return (
     <ResponsiveSheet open={open} onOpenChange={(next) => !next && closeSettings()} title="설정" footer={<InfoFooter />}>
       <div className="flex flex-col gap-5">
-        <div role="tablist" aria-label="설정 탭" className="grid grid-cols-4 rounded-xl bg-muted p-1">
+        <div role="tablist" aria-label="설정 탭" className="grid grid-cols-4 rounded-md bg-muted p-1">
           {TABS.map((item) => (
             <button
               key={item.value}

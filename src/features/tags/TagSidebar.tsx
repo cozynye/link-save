@@ -3,7 +3,6 @@ import { useUiStore } from '@/lib/uiStore'
 import { cn } from '@/lib/utils'
 import { orderedTags, pinnedCount, tagCounts } from '@/vault/derive'
 import type { Vault } from '@/vault/schema'
-import { TAG_DOT_CLASS } from './palette'
 
 interface ItemProps {
   active: boolean
@@ -20,13 +19,13 @@ function SidebarItem({ active, onClick, icon, label, count }: ItemProps) {
       onClick={onClick}
       aria-current={active ? 'true' : undefined}
       className={cn(
-        'flex h-10 w-full items-center gap-2.5 rounded-lg px-3 text-sm transition-colors',
-        active ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
+        'flex h-9 w-full items-center gap-2.5 rounded-md px-2.5 text-sm',
+        active ? 'bg-accent font-medium text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground',
       )}
     >
-      <span aria-hidden className="grid size-4 place-items-center [&>svg]:size-4">{icon}</span>
+      <span aria-hidden className="grid size-4 place-items-center text-muted-foreground [&>svg]:size-4">{icon}</span>
       <span className="flex-1 truncate text-left">{label}</span>
-      <span className="tabular-nums text-xs opacity-70">{count}</span>
+      <span className={cn('tabular-nums text-xs', active ? 'font-semibold text-highlight' : 'opacity-70')}>{count}</span>
     </button>
   )
 }
@@ -52,7 +51,7 @@ export function TagSidebar({ vault }: { vault: Vault }) {
             key={tag.id}
             active={filter.tagIds.includes(tag.id)}
             onClick={() => toggleTag(tag.id)}
-            icon={<span className={cn('size-2.5 rounded-full', TAG_DOT_CLASS[tag.color])} />}
+            icon={<span className="text-sm leading-none">#</span>}
             label={tag.name}
             count={counts.get(tag.id) ?? 0}
           />
@@ -61,7 +60,7 @@ export function TagSidebar({ vault }: { vault: Vault }) {
         <button
           type="button"
           onClick={() => openSettings('tags')}
-          className="mt-3 flex h-10 items-center gap-2.5 rounded-lg px-3 text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+          className="mt-3 flex h-9 items-center gap-2.5 rounded-md px-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <TagIcon aria-hidden className="size-4" />
           태그 관리

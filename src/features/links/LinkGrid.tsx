@@ -30,7 +30,7 @@ export function LinkGrid({ links, totalCount }: { links: Link[]; totalCount: num
   }
   if (isDesktop) {
     return (
-      <div className="grid grid-cols-2 gap-4 py-6 lg:grid-cols-3">
+      <div className="grid grid-cols-2 items-start gap-4 py-6 lg:grid-cols-3">
         {links.map((link) => (
           <LinkCard key={link.id} link={link} tags={tagsOf(link)} />
         ))}

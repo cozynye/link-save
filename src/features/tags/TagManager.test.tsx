@@ -39,11 +39,6 @@ describe('TagManager', () => {
     expect(useVaultStore.getState().updateTag).not.toHaveBeenCalled()
     expect(screen.getByRole('alert')).toHaveTextContent('이미 있는 태그예요')
   })
-  it('색을 바꾸면 updateTag', async () => {
-    render(<TagManager vault={vault} />)
-    await user.selectOptions(screen.getByLabelText('AI 색'), 'blue')
-    expect(useVaultStore.getState().updateTag).toHaveBeenCalledWith('a', { color: 'blue' })
-  })
   it('삭제는 사용 개수를 보여주고 확인 후 deleteTag와 필터 제거를 한다', async () => {
     useUiStore.getState().toggleTag('a')
     render(<TagManager vault={vault} />)

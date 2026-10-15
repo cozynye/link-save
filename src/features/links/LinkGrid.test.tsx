@@ -46,6 +46,14 @@ describe('LinkGrid', () => {
     await userEvent.click(screen.getByRole('button', { name: /제목 a/ }))
     expect(useUiStore.getState().detailId).toBe('a')
   })
+  it('모바일 행마다 링크를 새 탭으로 바로 여는 버튼이 있다', () => {
+    stubDesktop(false)
+    render(<LinkGrid links={vault.links} totalCount={2} />)
+    const open = screen.getByRole('link', { name: '제목 a 열기' })
+    expect(open).toHaveAttribute('href', 'https://example.com/a')
+    expect(open).toHaveAttribute('target', '_blank')
+    expect(open.getAttribute('rel')).toContain('noopener')
+  })
   it('데스크톱에서는 카드로 보여주고 고정 버튼은 togglePin을 부른다', async () => {
     stubDesktop(true)
     const togglePin = vi.fn()

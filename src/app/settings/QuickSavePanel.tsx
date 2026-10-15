@@ -21,7 +21,7 @@ export function QuickSavePanel() {
           ref={anchorRef}
           draggable
           onClick={(e) => e.preventDefault()}
-          className="inline-flex h-11 w-fit cursor-grab items-center gap-2 rounded-lg border bg-card px-3 font-medium shadow-[var(--shadow-card)] md:h-10"
+          className="inline-flex h-11 w-fit cursor-grab items-center gap-2 rounded-md border bg-card px-3 font-medium md:h-10"
         >
           <Bookmark className="size-4 text-primary" /> SaveLink에 저장
         </a>

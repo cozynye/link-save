@@ -6,63 +6,42 @@ export interface LinkThumbProps {
   image: string | null
   url: string
   title: string
+  /** 화면에 보이는 사이트 이름. 있으면 대체 글자를 여기서 딴다. */
+  siteName?: string
+  /** card: 이미지가 있을 때만 그린다. row: 이미지가 없으면 도메인 첫 글자 사각형을 그린다. */
   variant: 'card' | 'row'
   className?: string
 }
 
-export function faviconUrl(url: string): string {
-  const host = hostnameOf(url)
-  return host ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=64` : ''
+/** 썸네일 대체용 글자. 외부 서비스(파비콘 등)에 도메인을 보내지 않는다. 사이트 이름 → 도메인 → 제목 순서로 첫 글자를 쓴다. */
+export function monogramOf(url: string, title: string, siteName = ''): string {
+  const source = siteName.trim() || hostnameOf(url) || title.trim()
+  return (source[0] ?? '?').toUpperCase()
 }
 
-interface Failed {
-  forImage: string | null
-  image: boolean
-  favicon: boolean
-}
+export function LinkThumb({ image, url, title, siteName, variant, className }: LinkThumbProps) {
+  const [failedFor, setFailedFor] = useState<string | null>(null)
+  const showImage = image !== null && failedFor !== image
 
-export function LinkThumb({ image, url, title, variant, className }: LinkThumbProps) {
-  const [failedState, setFailed] = useState<Failed>({ forImage: image, image: false, favicon: false })
-  // 이미지 URL이 바뀌면 실패 기록을 새로 시작한다(렌더 중 파생, effect 없음).
-  const failed = failedState.forImage === image ? failedState : { forImage: image, image: false, favicon: false }
-
-  const shape = variant === 'card' ? 'aspect-video w-full' : 'size-14 shrink-0'
-  const favicon = faviconUrl(url)
-  const initial = (title.trim()[0] ?? hostnameOf(url)[0] ?? '?').toUpperCase()
-
-  if (image && !failed.image) {
+  if (showImage) {
     return (
       <img
         src={image}
         alt=""
         loading="lazy"
         decoding="async"
-        onError={() => setFailed({ ...failed, image: true })}
-        className={cn(shape, 'rounded-lg bg-muted object-cover', className)}
+        onError={() => setFailedFor(image)}
+        className={cn(variant === 'card' ? 'aspect-video w-full' : 'size-12 shrink-0 rounded-md', 'bg-muted object-cover', className)}
       />
     )
   }
-  if (favicon && !failed.favicon) {
-    return (
-      <div className={cn(shape, 'grid place-items-center rounded-lg bg-muted', className)}>
-        <img
-          src={favicon}
-          alt=""
-          width={variant === 'card' ? 48 : 28}
-          height={variant === 'card' ? 48 : 28}
-          loading="lazy"
-          onError={() => setFailed({ ...failed, favicon: true })}
-          className="rounded"
-        />
-      </div>
-    )
-  }
+  if (variant === 'card') return null
   return (
     <div
       aria-hidden
-      className={cn(shape, 'grid place-items-center rounded-lg bg-accent font-semibold text-accent-foreground', variant === 'card' ? 'text-4xl' : 'text-lg', className)}
+      className={cn('grid size-12 shrink-0 place-items-center rounded-md border bg-muted text-base font-semibold text-muted-foreground', className)}
     >
-      {initial}
+      {monogramOf(url, title, siteName)}
     </div>
   )
 }

@@ -12,9 +12,9 @@ export function syncDotState(status: VaultStatus, pendingCount: number, writing:
   return { tone: 'ok', label: '동기화됨' }
 }
 
-const TONE_CLASS: Record<SyncTone, string> = {
-  ok: 'bg-emerald-500',
-  busy: 'bg-amber-500 animate-pulse',
+// 정상(ok)일 때는 아무것도 그리지 않는다. 알릴 것이 있을 때만 점이 보인다.
+const TONE_CLASS: Record<Exclude<SyncTone, 'ok'>, string> = {
+  busy: 'bg-muted-foreground animate-pulse',
   error: 'bg-destructive',
   muted: 'bg-muted-foreground/50',
 }
@@ -25,5 +25,6 @@ export function SyncDot() {
   const writing = useVaultStore((s) => s.writing)
   const online = useVaultStore((s) => s.online)
   const { tone, label } = syncDotState(status, pendingCount, writing, online)
-  return <span role="status" aria-label={label} title={label} className={cn('inline-block size-2 rounded-full', TONE_CLASS[tone])} />
+  if (tone === 'ok') return null
+  return <span role="status" aria-label={label} title={label} className={cn('inline-block size-1.5 rounded-full', TONE_CLASS[tone])} />
 }

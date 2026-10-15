@@ -13,7 +13,7 @@ export function TagChipRow({ vault }: { vault: Vault }) {
   const counts = tagCounts(vault)
   const allActive = filter.tagIds.length === 0 && !filter.pinnedOnly
   const pill = (active: boolean) =>
-    cn('inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium', active ? 'border-foreground bg-foreground text-background' : 'bg-card text-muted-foreground')
+    cn('inline-flex h-11 shrink-0 items-center gap-1.5 rounded-md border px-3.5 text-sm font-medium', active ? 'border-foreground bg-foreground text-background' : 'border-border bg-card text-foreground')
 
   return (
     <div role="group" aria-label="태그 필터" className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4 py-2">

@@ -84,7 +84,7 @@ function CaptureForm({ url, vault, onClose, onOpenExisting }: { url: string; vau
   if (duplicate) {
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex items-start gap-3 rounded-xl bg-accent p-4">
+        <div className="flex items-start gap-3 rounded-md border bg-muted p-4">
           <CircleAlert aria-hidden className="mt-0.5 size-5 shrink-0 text-primary" />
           <div className="min-w-0">
             <p className="font-medium">이미 저장된 링크예요</p>
@@ -108,7 +108,7 @@ function CaptureForm({ url, vault, onClose, onOpenExisting }: { url: string; vau
       }}
     >
       <div className="flex gap-4">
-        {meta.loading ? <Skeleton className="size-24 shrink-0 rounded-xl" /> : <LinkThumb image={meta.image} url={url} title={title || host} variant="row" className="size-24 rounded-xl" />}
+        {meta.loading ? <Skeleton className="size-24 shrink-0 rounded-md" /> : <LinkThumb image={meta.image} url={url} title={title || host} siteName={meta.siteName} variant="row" className="size-24 text-3xl" />}
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs text-muted-foreground">{meta.siteName || host}</p>
           <p className="mt-1 break-all text-xs text-muted-foreground/80">{url}</p>

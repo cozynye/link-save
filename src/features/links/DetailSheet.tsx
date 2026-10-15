@@ -142,7 +142,7 @@ function DetailForm({ link, vault, onClose }: { link: Link; vault: Vault; onClos
         save()
       }}
     >
-      <LinkThumb image={image} url={url} title={title} variant="card" className="rounded-xl" />
+      <LinkThumb image={image} url={url} title={title} variant="card" className="rounded-md border" />
 
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" size="sm" className={MOBILE_TOUCH_SIZE} asChild>
