@@ -1,3 +1,5 @@
+import { verifyOwner } from './_owner'
+
 export interface LinkMetadata {
   title: string
   description: string
@@ -8,7 +10,8 @@ export interface LinkMetadata {
 const TIMEOUT_MS = 5000
 const MAX_BYTES = 512 * 1024
 const MAX_REDIRECTS = 3
-const CACHE_CONTROL = 'public, s-maxage=86400, stale-while-revalidate=604800'
+// 허용된 사용자에게만 응답하므로 CDN 공용 캐시에 두지 않는다. 브라우저 개인 캐시만 허용한다.
+const CACHE_CONTROL = 'private, max-age=86400'
 const USER_AGENT = 'Mozilla/5.0 (compatible; SaveLinkBot/2.0)'
 
 type IPv4 = [number, number, number, number]
@@ -247,6 +250,8 @@ function json(body: unknown, status: number, headers: Record<string, string> = {
 
 export async function GET(request: Request): Promise<Response> {
   if (!isAllowedOrigin(request)) return json({ error: 'forbidden' }, 403)
+  const owner = await verifyOwner(request)
+  if (!owner.ok) return json({ error: owner.error }, owner.status)
   const target = new URL(request.url).searchParams.get('url')
   if (!target) return json({ error: 'url required' }, 400)
   let parsed: URL

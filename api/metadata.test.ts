@@ -1,6 +1,10 @@
 // @vitest-environment node
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { verifyOwner } from './_owner'
 import { GET, decodeEntities, detectCharset, extractMetadata, fetchHtml, isAllowedOrigin, isPrivateHost } from './metadata'
+
+vi.mock('./_owner', () => ({ verifyOwner: vi.fn() }))
+const mockedOwner = vi.mocked(verifyOwner)
 
 const html = (body: string) => new Response(body, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
 
@@ -148,6 +152,18 @@ describe('fetchHtml', () => {
 })
 
 describe('GET', () => {
+  beforeEach(() => mockedOwner.mockResolvedValue({ ok: true, login: 'cozynye' }))
+
+  it('허용되지 않은 토큰이면 403, 토큰이 없으면 401이고 대상 사이트를 부르지 않는다', async () => {
+    const fetchSpy = vi.fn()
+    vi.stubGlobal('fetch', fetchSpy)
+    mockedOwner.mockResolvedValueOnce({ ok: false, status: 403, error: 'not allowed' })
+    expect((await GET(req('https://example.com/a'))).status).toBe(403)
+    mockedOwner.mockResolvedValueOnce({ ok: false, status: 401, error: 'token required' })
+    expect((await GET(req('https://example.com/a'))).status).toBe(401)
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
   const req = (url: string, headers: Record<string, string> = { 'sec-fetch-site': 'same-origin' }) =>
     new Request(`https://app.example/api/metadata?url=${encodeURIComponent(url)}`, { headers })
 
@@ -155,7 +171,7 @@ describe('GET', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(html('<title>Hello</title><meta property="og:description" content="d">')))
     const res = await GET(req('https://example.com/a'))
     expect(res.status).toBe(200)
-    expect(res.headers.get('Cache-Control')).toBe('public, s-maxage=86400, stale-while-revalidate=604800')
+    expect(res.headers.get('Cache-Control')).toBe('private, max-age=86400')
     expect(await res.json()).toEqual({ title: 'Hello', description: 'd', image: null, siteName: 'example.com' })
   })
   it('출처가 다르면 403', async () => {

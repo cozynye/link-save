@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CACHE_KEY, SETTINGS_KEY, loadCache, saveCache, saveSettings } from '@/lib/settings'
 import { encodeBase64Utf8 } from './github'
 import { emptyVault, serializeVault, type Vault } from './schema'
-import { resetVaultStoreForTests, useVaultStore } from './store'
+import { resetVaultStoreForTests, setOwnerCheckForTests, useVaultStore } from './store'
 
 type Route = (url: string, init: RequestInit | undefined) => Response | Promise<Response>
 
@@ -433,6 +433,8 @@ describe('regression fix: connect() 실패는 generation을 올리지 않는다'
     const reloadPromise = useVaultStore.getState().reload() // 아직 A 설정을 쓴다; A의 GET은 deferredAReload로 멈춰 있다
 
     // B의 GET을 404로 끝내 '파일 없음 → 초기화' 경로를 타게 하고 connect(B)를 완료시킨다.
+    // connect는 허용 계정 확인을 먼저 기다리므로, B의 GET이 실제로 시작될 때까지 기다린다.
+    await vi.waitFor(() => expect(deferredB.resolve).not.toBeNull())
     deferredB.resolve?.(json(404, {}))
     await connectBPromise
     expect(useVaultStore.getState().settings?.repo).toBe('save-link-data')
@@ -451,5 +453,33 @@ describe('regression fix: connect() 실패는 generation을 올리지 않는다'
     useVaultStore.getState().addLink({ url: 'https://e.com/a', title: 'B로-reload', description: '', note: '', image: null, siteName: '', tags: [] })
     await useVaultStore.getState().flush()
     expect(putsB.at(-1)?.message).toBe('Add link: B로-reload')
+  })
+})
+
+describe('허용 계정 확인', () => {
+  it('허용되지 않은 계정은 잘못된 토큰과 같은 문구로 거절하고 GitHub에 아무것도 쓰지 않는다', async () => {
+    const gh = fakeGithub(null)
+    stubFetch(gh.route)
+    setOwnerCheckForTests(async () => 'denied')
+    const result = await useVaultStore.getState().connect(settings)
+    expect(result).toEqual({ ok: false, message: '토큰을 확인해 주세요. 권한이 없거나 만료되었습니다' })
+    expect(gh.puts).toHaveLength(0)
+    expect(localStorage.getItem(SETTINGS_KEY)).toBeNull()
+    expect(useVaultStore.getState().status).toBe('disconnected')
+  })
+  it('확인 서버에 닿지 못하면 연결하지 않는다', async () => {
+    stubFetch(fakeGithub(null).route)
+    setOwnerCheckForTests(async () => 'unreachable')
+    const result = await useVaultStore.getState().connect(settings)
+    expect(result).toEqual({ ok: false, message: '네트워크에 연결할 수 없습니다' })
+    expect(localStorage.getItem(SETTINGS_KEY)).toBeNull()
+  })
+  it('허용된 계정이면 확인에 입력한 토큰을 그대로 쓴다', async () => {
+    stubFetch(fakeGithub(null).route)
+    const check = vi.fn(async () => 'allowed' as const)
+    setOwnerCheckForTests(check)
+    await useVaultStore.getState().connect({ ...settings, token: ' tok ' })
+    expect(check).toHaveBeenCalledWith('tok')
+    expect(useVaultStore.getState().status).toBe('ready')
   })
 })

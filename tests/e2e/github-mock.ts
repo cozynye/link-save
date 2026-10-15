@@ -47,6 +47,8 @@ export async function installGithubMock(page: Page, opts: { initial: MockVault |
     return route.fulfill({ status: 405, headers: CORS })
   })
 
+  await page.route('**/api/allowed', (route) => route.fulfill({ status: 200, json: { login: 'me' } }))
+
   await page.route('**/api/metadata**', (route) =>
     route.fulfill({ status: 200, json: { title: 'OG 제목', description: 'OG 설명', image: null, siteName: 'example.com', ...opts.metadata } }),
   )

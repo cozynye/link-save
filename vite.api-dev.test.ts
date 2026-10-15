@@ -42,4 +42,13 @@ describe('vercelApiDev', () => {
     expect(ssrLoadModule).toHaveBeenCalledWith('/api/metadata.ts')
     expect(res.statusCode).toBe(200)
   })
+
+  it('/api/allowed도 같은 방식으로 처리한다', async () => {
+    const { middleware, ssrLoadModule } = setup()
+    ssrLoadModule.mockResolvedValue({ GET: vi.fn().mockResolvedValue(new Response('{}', { status: 403 })) })
+    const res = makeRes()
+    await middleware({ url: '/api/allowed', headers: { host: 'localhost:5173' } }, res, vi.fn())
+    expect(ssrLoadModule).toHaveBeenCalledWith('/api/allowed.ts')
+    expect(res.statusCode).toBe(403)
+  })
 })
