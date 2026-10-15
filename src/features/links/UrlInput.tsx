@@ -50,9 +50,9 @@ export function UrlInput() {
             submit(text)
           }
         }}
-        className={cn('h-14 rounded-xl bg-card pl-10 pr-24 text-base shadow-[var(--shadow-card)] md:h-12 md:pr-20', error && 'border-destructive')}
+        className={cn('h-14 bg-card pl-10 pr-24 text-base md:h-12 md:pr-20', error && 'border-destructive')}
       />
-      <Button type="submit" size="sm" disabled={!value.trim()} className="absolute right-1.5 top-1/2 h-11 -translate-y-1/2 rounded-lg md:h-8">
+      <Button type="submit" size="sm" disabled={!value.trim()} className="absolute right-1.5 top-1/2 h-11 -translate-y-1/2 md:h-8">
         저장
       </Button>
       {error && (

@@ -8,12 +8,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useUiStore } from '@/lib/uiStore'
-import { cn } from '@/lib/utils'
 import { tagCounts } from '@/vault/derive'
 import { findTagByName } from '@/vault/ops'
-import { TAG_COLORS, type Tag, type TagColor, type Vault } from '@/vault/schema'
+import type { Tag, Vault } from '@/vault/schema'
 import { useVaultStore } from '@/vault/store'
-import { TAG_COLOR_LABEL, TAG_DOT_CLASS } from './palette'
 
 function guard(): boolean {
   const result = useVaultStore.getState().canWrite()
@@ -41,11 +39,6 @@ function TagRow({ tag, vault, count }: { tag: Tag; vault: Vault; count: number }
     useVaultStore.getState().updateTag(tag.id, { name: trimmed })
   }
 
-  function changeColor(color: TagColor) {
-    if (!guard()) return
-    useVaultStore.getState().updateTag(tag.id, { color })
-  }
-
   function remove() {
     if (!guard()) return
     useVaultStore.getState().deleteTag(tag.id)
@@ -55,7 +48,7 @@ function TagRow({ tag, vault, count }: { tag: Tag; vault: Vault; count: number }
   return (
     <li className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
-        <span aria-hidden className={cn('size-3 shrink-0 rounded-full', TAG_DOT_CLASS[tag.color])} />
+        <span aria-hidden className="w-3 shrink-0 text-center text-muted-foreground">#</span>
         <Input
           aria-label={`${tag.name} 이름`}
           value={name}
@@ -67,18 +60,8 @@ function TagRow({ tag, vault, count }: { tag: Tag; vault: Vault; count: number }
               commitName()
             }
           }}
-          className="h-11 flex-1 rounded-lg md:h-9"
+          className="h-11 flex-1 md:h-9"
         />
-        <select
-          aria-label={`${tag.name} 색`}
-          value={tag.color}
-          onChange={(e) => changeColor(e.target.value as TagColor)}
-          className="h-11 rounded-lg border bg-card px-2 text-sm md:h-9"
-        >
-          {TAG_COLORS.map((color) => (
-            <option key={color} value={color}>{TAG_COLOR_LABEL[color]}</option>
-          ))}
-        </select>
         <span className="w-8 text-right text-xs tabular-nums text-muted-foreground">{count}</span>
         <AlertDialog>
           <AlertDialogTrigger asChild>

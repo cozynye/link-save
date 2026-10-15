@@ -54,7 +54,7 @@ export function StatusBanner() {
   const repoUrl = settings ? `https://github.com/${encodeURIComponent(settings.owner)}/${encodeURIComponent(settings.repo)}` : 'https://github.com'
 
   return (
-    <div role="status" className={cn('mb-4 flex flex-wrap items-start gap-3 rounded-xl border px-4 py-3 text-sm', TONE_CLASS[banner.tone])}>
+    <div role="status" className={cn('mb-4 flex flex-wrap items-start gap-3 rounded-md border px-4 py-3 text-sm', TONE_CLASS[banner.tone])}>
       {banner.tone === 'muted' ? <WifiOff aria-hidden className="mt-0.5 size-4 shrink-0" /> : <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />}
       <div className="min-w-0 flex-1">
         <p className="font-medium">{banner.title}</p>

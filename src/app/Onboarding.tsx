@@ -10,7 +10,7 @@ const TOKEN_URL = 'https://github.com/settings/personal-access-tokens/new'
 function Step({ number, title, children }: { number: number; title: string; children: React.ReactNode }) {
   return (
     <section className="flex gap-4">
-      <div aria-hidden className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+      <div aria-hidden className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
         {number}
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -45,8 +45,7 @@ export function Onboarding() {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-10 px-5 py-10">
       <header>
-        <p className="text-sm font-medium text-primary">개인 링크 저장소</p>
-        <h1 className="mt-1 text-3xl font-bold">SaveLink</h1>
+        <h1 className="text-3xl font-semibold tracking-[-0.02em]">SaveLink</h1>
         <p className="mt-3 text-muted-foreground">GitHub 비공개 레포의 JSON 파일 하나에 링크를 저장합니다. 서버도 데이터베이스도 없고, 세 단계면 끝나요.</p>
       </header>
 

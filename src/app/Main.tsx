@@ -18,7 +18,7 @@ function GridSkeleton() {
   return (
     <div className="grid gap-4 py-6 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="불러오는 중">
       {Array.from({ length: 6 }, (_, i) => (
-        <Skeleton key={i} className="h-40 rounded-2xl md:h-64" />
+        <Skeleton key={i} className="h-40 rounded-md md:h-64" />
       ))}
     </div>
   )
