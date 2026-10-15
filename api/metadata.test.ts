@@ -1,9 +1,9 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { verifyOwner } from './_owner'
+import { verifyOwner } from './_owner.js'
 import { GET, decodeEntities, detectCharset, extractMetadata, fetchHtml, isAllowedOrigin, isPrivateHost } from './metadata'
 
-vi.mock('./_owner', () => ({ verifyOwner: vi.fn() }))
+vi.mock('./_owner.js', () => ({ verifyOwner: vi.fn() }))
 const mockedOwner = vi.mocked(verifyOwner)
 
 const html = (body: string) => new Response(body, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
